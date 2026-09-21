@@ -191,7 +191,7 @@ export const BottomPlayer: React.FC = () => {
   if (!currentTrack) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-800 shadow-2xl px-4 py-3">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-zinc-950/95 md:bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-900 md:border-zinc-800 shadow-2xl md:px-4 md:py-3 px-2 py-2">
       {/* Hidden Native HTML5 Audio Element */}
       <audio
         ref={audioRef}
@@ -203,10 +203,20 @@ export const BottomPlayer: React.FC = () => {
         preload="auto"
       />
 
+      {/* Mobile Thin Progress Bar (Bottom edge) */}
+      <div className="md:hidden absolute bottom-0 left-0 right-0 h-[2px] bg-zinc-900">
+        <div 
+          className="h-full bg-white rounded-r-full transition-all duration-100 ease-linear"
+          style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+        />
+      </div>
+
       <div className="max-w-7xl mx-auto flex flex-row items-center justify-between gap-3">
         {/* Track Info (Left) */}
-        <div className="flex items-center gap-3 min-w-0 flex-1 md:w-1/4">
-          <div className="relative w-10 h-10 md:w-11 md:h-11 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center flex-shrink-0 overflow-hidden">
+        <div className="flex items-center gap-3 min-w-0 flex-1 md:w-1/4 cursor-pointer md:cursor-default" onClick={() => {
+          // Future: Expand to full screen player on mobile
+        }}>
+          <div className="relative w-10 h-10 md:w-11 md:h-11 rounded-md md:rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center flex-shrink-0 overflow-hidden">
             {currentTrack.coverArt ? (
               <img src={resolveAudioUrl(currentTrack.coverArt)} alt={currentTrack.title} className="w-full h-full object-cover" />
             ) : (
@@ -222,25 +232,47 @@ export const BottomPlayer: React.FC = () => {
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
+            <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 truncate">
               <span>{currentTrack.bpm} BPM</span>
               {currentTrack.key && (
                 <>
                   <span>•</span>
-                  <span className="hidden sm:inline">{currentTrack.key}</span>
+                  <span>{currentTrack.key}</span>
                 </>
               )}
             </div>
           </div>
         </div>
 
-        {/* Center Player Controls & Progress Scrub Bar */}
-        <div className="flex flex-col items-center flex-shrink-0 md:flex-1 md:w-2/4 max-w-xl">
-          <div className="flex items-center gap-2 md:gap-4 mb-0 md:mb-1">
+        {/* Mobile Controls (Right) */}
+        <div className="flex md:hidden items-center gap-4 pr-2">
+          <button
+            onClick={() => openInquireModal(currentTrack)}
+            aria-label="Download"
+            className="text-zinc-400 hover:text-white transition-colors"
+          >
+            <Download className="w-5 h-5" />
+          </button>
+          <button
+            onClick={togglePlay}
+            aria-label={isPlaying ? 'Pause' : 'Play'}
+            className="text-white active:scale-95 transition-transform flex items-center justify-center"
+          >
+            {isPlaying ? (
+              <Pause className="w-6 h-6 fill-white" />
+            ) : (
+              <Play className="w-6 h-6 fill-white ml-0.5" />
+            )}
+          </button>
+        </div>
+
+        {/* Center Player Controls & Progress Scrub Bar (Desktop) */}
+        <div className="hidden md:flex flex-col items-center flex-shrink-0 md:flex-1 md:w-2/4 max-w-xl">
+          <div className="flex items-center gap-4 mb-1">
             <button
               onClick={prevTrack}
               aria-label="Previous Track"
-              className="hidden md:block p-1.5 text-zinc-400 hover:text-white transition-colors"
+              className="p-1.5 text-zinc-400 hover:text-white transition-colors"
             >
               <SkipBack className="w-4 h-4" />
             </button>
@@ -248,26 +280,25 @@ export const BottomPlayer: React.FC = () => {
             <button
               onClick={togglePlay}
               aria-label={isPlaying ? 'Pause' : 'Play'}
-              className="w-10 h-10 md:w-9 md:h-9 rounded-full bg-white text-zinc-950 flex items-center justify-center hover:bg-zinc-200 transition-all shadow active:scale-95"
+              className="w-9 h-9 rounded-full bg-white text-zinc-950 flex items-center justify-center hover:bg-zinc-200 transition-all shadow active:scale-95"
             >
               {isPlaying ? (
-                <Pause className="w-5 h-5 md:w-4 md:h-4 fill-zinc-950" />
+                <Pause className="w-4 h-4 fill-zinc-950" />
               ) : (
-                <Play className="w-5 h-5 md:w-4 md:h-4 fill-zinc-950 ml-0.5" />
+                <Play className="w-4 h-4 fill-zinc-950 ml-0.5" />
               )}
             </button>
 
             <button
               onClick={nextTrack}
               aria-label="Next Track"
-              className="hidden md:block p-1.5 text-zinc-400 hover:text-white transition-colors"
+              className="p-1.5 text-zinc-400 hover:text-white transition-colors"
             >
               <SkipForward className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Time Scrubber - Hidden on mobile to save vertical space */}
-          <div className="hidden md:flex items-center gap-2.5 w-full text-[11px] font-mono text-zinc-400">
+          <div className="flex items-center gap-2.5 w-full text-[11px] font-mono text-zinc-400">
             <span className="w-8 text-right">{formatTime(currentTime)}</span>
             <input
               type="range"
@@ -281,7 +312,7 @@ export const BottomPlayer: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Volume & Quick Inquire */}
+        {/* Right Volume & Quick Inquire (Desktop) */}
         <div className="hidden md:flex items-center justify-end gap-4 w-1/4">
           <div className="flex items-center gap-2">
             <button onClick={toggleMute} className="text-zinc-400 hover:text-white transition-colors">

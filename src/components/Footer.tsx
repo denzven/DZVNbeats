@@ -20,7 +20,7 @@ export const Footer: React.FC = () => {
               <span className="font-extrabold text-lg text-white">DZVNbeats</span>
             </div>
             <p className="text-xs text-zinc-400 leading-relaxed max-w-md">
-              High-quality, studio-crafted beat collection. Built for recording artists, songwriters, and creators seeking professional production.
+              Premium, hard-hitting type beats for upcoming artists. Download free tagged instrumentals instantly or grab affordable leases for your next hit.
             </p>
             <p className="text-[11px] font-mono text-zinc-500 mt-4">
               © {new Date().getFullYear()} DZVNbeats. All rights reserved. Serverless PWA.

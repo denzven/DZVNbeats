@@ -114,62 +114,72 @@ export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-6 snap-x snap-mandatory scrollbar-none">
             {featuredBeats.map((beat) => (
               <div
                 key={beat.id}
-                className="group relative bg-zinc-900/40 hover:bg-zinc-900/80 border border-zinc-900 hover:border-zinc-800 rounded-2xl p-4 transition-all duration-300"
+                className="group relative flex-none w-[80vw] sm:w-[320px] flex flex-col justify-between bg-zinc-900/40 hover:bg-zinc-900/80 border border-zinc-900 hover:border-zinc-800 rounded-2xl p-4 transition-all duration-300 snap-center"
               >
-                {/* Cover Art Frame */}
-                <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-zinc-950 mb-4 group-hover:shadow-2xl">
-                  {beat.coverArt ? (
-                    <img
-                      src={resolveUrl(beat.coverArt)}
-                      alt={beat.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
+                <div>
+                  {/* Cover Art Frame */}
+                  <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-zinc-950 mb-4 group-hover:shadow-2xl">
+                    {beat.coverArt ? (
+                      <img
+                        src={resolveUrl(beat.coverArt)}
+                        alt={beat.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-zinc-900">
+                        <Disc className="w-12 h-12 text-zinc-700" />
+                      </div>
+                    )}
 
-                    <div className="w-full h-full flex items-center justify-center bg-zinc-900">
-                      <Disc className="w-12 h-12 text-zinc-700" />
+                    {/* Play Button Overlay */}
+                    <div className="absolute inset-0 bg-zinc-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <button
+                        onClick={() => playTrack(beat)}
+                        className="w-14 h-14 rounded-full bg-white text-zinc-950 flex items-center justify-center shadow-xl hover:scale-110 transition-transform active:scale-95"
+                      >
+                        <Play className="w-6 h-6 fill-zinc-950 ml-0.5" />
+                      </button>
                     </div>
-                  )}
 
-                  {/* Play Button Overlay */}
-                  <div className="absolute inset-0 bg-zinc-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <button
-                      onClick={() => playTrack(beat)}
-                      className="w-14 h-14 rounded-full bg-white text-zinc-950 flex items-center justify-center shadow-xl hover:scale-110 transition-transform active:scale-95"
-                    >
-                      <Play className="w-6 h-6 fill-zinc-950 ml-0.5" />
-                    </button>
+                    <span className="absolute top-3 right-3 bg-zinc-950/85 backdrop-blur-md text-white font-mono text-xs font-bold px-2.5 py-1 rounded-lg border border-zinc-800">
+                      {beat.price === 0 ? 'FREE' : `$${beat.price || 29}`}
+                    </span>
                   </div>
 
-                  <span className="absolute top-3 right-3 bg-zinc-950/80 backdrop-blur-md text-white font-mono text-xs px-2.5 py-1 rounded-lg border border-zinc-800">
-                    {beat.price === 0 ? 'FREE' : `$${beat.price || 29}`}
-                  </span>
+                  {/* Track Details */}
+                  <div className="mb-4">
+                    <h3 className="font-bold text-lg text-white group-hover:text-zinc-200 truncate">{beat.title}</h3>
+                    <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 mt-1 flex-wrap">
+                      {beat.bpm && (
+                        <span className="bg-zinc-950 border border-zinc-800 px-2 py-0.5 rounded text-zinc-300">
+                          {beat.bpm} BPM
+                        </span>
+                      )}
+                      {beat.key && (
+                        <span className="bg-zinc-950 border border-zinc-800 px-2 py-0.5 rounded text-zinc-400">
+                          {beat.key}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                {/* Track Details */}
-                <h3 className="font-bold text-lg text-white group-hover:text-zinc-200 truncate">{beat.title}</h3>
-                <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 mt-1">
-                  {beat.bpm && <span>{beat.bpm} BPM</span>}
-                  {beat.key && <span>{beat.bpm ? '• ' : ''}{beat.key}</span>}
-                </div>
-
-
-                <div className="mt-4 pt-3 border-t border-zinc-800/60 flex items-center justify-between">
+                <div className="mt-auto pt-3 border-t border-zinc-800/60 flex items-center justify-between">
                   <button
                     onClick={() => playTrack(beat)}
-                    className="text-xs font-semibold text-zinc-300 hover:text-white flex items-center gap-1.5"
+                    className="py-1.5 text-xs font-semibold text-zinc-400 hover:text-white flex items-center gap-1"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
-                    Play Beat
+                    Play
                   </button>
 
                   <button
                     onClick={() => openInquireModal(beat)}
-                    className="px-3 py-1.5 bg-zinc-100 hover:bg-white text-zinc-950 font-bold text-xs rounded-lg transition-all"
+                    className="px-3 py-1.5 bg-zinc-100 hover:bg-white text-zinc-950 font-bold text-xs rounded-xl shadow transition-all flex items-center gap-1"
                   >
                     Download
                   </button>
