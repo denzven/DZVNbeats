@@ -46,7 +46,7 @@ export const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3 group">
           <div className="w-10 h-10 rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 flex items-center justify-center shadow-inner group-hover:border-zinc-500 transition-colors">
-            <img src="/pwa-192x192.png" alt="DZVNbeats Favicon" className="w-full h-full object-cover" />
+            <img src={`${import.meta.env.BASE_URL}pwa-192x192.png`} alt="DZVNbeats Favicon" className="w-full h-full object-cover" />
           </div>
           <div>
             <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
