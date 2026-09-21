@@ -7,6 +7,7 @@ import { LicensingLegalPage } from './pages/LicensingLegalPage';
 import { BottomPlayer } from './components/BottomPlayer';
 import { InquireModal } from './components/InquireModal';
 import { Footer } from './components/Footer';
+import { UpdatePopup } from './components/UpdatePopup';
 import { useAudioStore } from './store/useAudioStore';
 
 import beatsData from './data/beats.json';
@@ -55,6 +56,7 @@ export const App: React.FC = () => {
         {/* Persistent Bottom Audio Player & Lead Modal across all pages */}
         <BottomPlayer />
         <InquireModal />
+        <UpdatePopup />
       </div>
     </Router>
   );

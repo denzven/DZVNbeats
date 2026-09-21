@@ -29,7 +29,7 @@ export default defineConfig({
     react(),
     watchBeatsPlugin(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['favicon.png', 'apple-touch-icon.png'],
       manifest: {
         name: 'DZVNbeats | Studio Beat Portfolio',

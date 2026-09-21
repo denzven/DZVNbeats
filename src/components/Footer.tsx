@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Disc, Instagram, Mail, ArrowUp, Youtube } from 'lucide-react';
+import { Instagram, Mail, ArrowUp, Youtube } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const scrollToTop = () => {
