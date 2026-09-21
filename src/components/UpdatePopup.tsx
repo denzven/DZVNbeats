@@ -7,7 +7,7 @@ export const UpdatePopup: React.FC = () => {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
   } = useRegisterSW({
-    onRegistered(r) {
+    onRegistered(r: any) {
       // Check for SW updates every 1 minute
       if (r) {
         setInterval(() => {
@@ -15,7 +15,7 @@ export const UpdatePopup: React.FC = () => {
         }, 60 * 1000);
       }
     },
-    onRegisterError(error) {
+    onRegisterError(error: any) {
       console.log('SW registration error', error);
     },
   });
