@@ -101,8 +101,25 @@ async function generateManifest() {
     // 4. Key Signature (Utmost Priority: Real ID3 Key -> Filename Key -> null)
     let key = common.key || common.initialKey || null;
     if (!key) {
-      const keyMatch = file.match(/([A-G][#b]?\s*(?:min|maj|minor|major))/i);
-      if (keyMatch) key = keyMatch[1].toUpperCase();
+      const keyMatch = file.match(/([A-G](?:sharp|flat|[#b])?(?:min|minor|maj|major|mjr))/i);
+      if (keyMatch) {
+        let parsedKey = keyMatch[1].toLowerCase();
+        parsedKey = parsedKey.replace(/sharp/g, '#').replace(/flat/g, 'b');
+        const noteMatch = parsedKey.match(/^[a-g][#b]?/);
+        if (noteMatch) {
+          let note = noteMatch[0];
+          let scale = parsedKey.substring(note.length);
+          if (scale.startsWith('mjr') || scale.startsWith('maj')) {
+            scale = 'major';
+          } else if (scale.startsWith('min')) {
+            scale = 'minor';
+          }
+          note = note.charAt(0).toUpperCase() + note.slice(1);
+          key = `${note} ${scale}`;
+          // Make it match user example exactly if needed, e.g. "F#minor" or "G major"
+          if (scale === 'minor' && note.length > 1) key = `${note}${scale}`; // F#minor
+        }
+      }
     }
 
     // 5. Genre / Tags (Utmost Priority: Real ID3 Genre -> null)
