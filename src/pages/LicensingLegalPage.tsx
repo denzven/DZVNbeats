@@ -1,11 +1,10 @@
 import React from 'react';
-import { ShieldCheck, Check, Sparkles, FileAudio, Disc, Crown, HelpCircle, FileText, Scale } from 'lucide-react';
+import { Check, Sparkles, FileAudio, Disc, Crown, HelpCircle, FileText, Scale } from 'lucide-react';
 import { licensingTiers } from '../components/LicensingSection';
 import { useAudioStore } from '../store/useAudioStore';
 
 export const LicensingLegalPage: React.FC = () => {
-  const { currentTrack, playlist, openInquireModal } = useAudioStore();
-  const activeBeat = currentTrack || playlist[0];
+  const { openInquireModal } = useAudioStore();
 
   return (
     <div className="pt-28 pb-32 bg-zinc-950 text-zinc-100 min-h-screen">

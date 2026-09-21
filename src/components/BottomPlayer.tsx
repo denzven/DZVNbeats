@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, MessageSquare, Disc, Download } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Disc, Download } from 'lucide-react';
 import { useAudioStore } from '../store/useAudioStore';
 
 // Helper to resolve URL using Vite BASE_URL (e.g. '/' in dev or '/DZVNbeats/' in production)
