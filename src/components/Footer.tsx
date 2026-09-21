@@ -14,8 +14,8 @@ export const Footer: React.FC = () => {
           {/* Brand Info */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white">
-                <Disc className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center overflow-hidden">
+                <img src={`${import.meta.env.BASE_URL}pwa-192x192.png`} alt="DZVNbeats Logo" className="w-full h-full object-cover" />
               </div>
               <span className="font-extrabold text-lg text-white">DZVNbeats</span>
             </div>
@@ -83,6 +83,11 @@ export const Footer: React.FC = () => {
             <span>TOP</span>
             <ArrowUp className="w-3.5 h-3.5" />
           </button>
+        </div>
+
+        {/* SEO / Meta keywords */}
+        <div className="pt-8 mt-4 text-justify text-[9px] text-zinc-800 leading-relaxed font-sans">
+          Premium type beats and instrumentals for sale. Download free type beats, buy rap beats for sale, and lease high-quality trap type beats, R&amp;B instrumentals, and drill type beats instantly. Drake type beat, Travis Scott type beat, Future type beat, Metro Boomin type beat, Playboi Carti type beat, Lil Uzi Vert type beat, 21 Savage type beat, J. Cole type beat, Kendrick Lamar type beat, Gunna type beat, Lil Baby type beat, Young Thug type beat, Don Toliver type beat, The Weeknd type beat, Bryson Tiller type beat, Partynextdoor type beat, Brent Faiyaz type beat, Pop Smoke type beat, Central Cee type beat, Chief Keef type beat, Yeat type beat, Ken Carson type beat, Destroy Lonely type beat, Lil Tecca type beat, Juice WRLD type beat, XXXTentacion type beat, Polo G type beat, Roddy Ricch type beat, NBA Youngboy type beat.
         </div>
       </div>
     </footer>

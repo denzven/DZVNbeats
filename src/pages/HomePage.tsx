@@ -55,7 +55,7 @@ export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]"
           >
-            HIGH-QUALITY SOUNDS FOR <br />
+            HIGH-QUALITY TYPE BEATS FOR <br />
             <span className="bg-gradient-to-r from-zinc-100 via-zinc-400 to-zinc-600 bg-clip-text text-transparent italic font-serif">
               CREATIVE ARTISTS
             </span>
@@ -67,8 +67,7 @@ export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mt-6 text-base sm:text-lg text-zinc-400 leading-relaxed font-normal max-w-2xl mx-auto"
           >
-            Studio-grade Trap, Synthwave, RnB &amp; Drill instrumentals produced by{' '}
-            <strong className="text-white font-semibold">DZVN</strong>. Instant untagged WAV downloads, stems, and direct royalty-free licensing.
+            Free tagged and affordable type beats for young artists and creators. Get high-quality rap instrumentals instantly with untagged WAV downloads, track stems, and direct royalty-free licensing.
           </motion.p>
 
           <motion.div
@@ -264,6 +263,8 @@ export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
               </p>
             </div>
           </div>
+
+
         </div>
       </section>
     </div>

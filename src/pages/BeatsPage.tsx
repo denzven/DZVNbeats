@@ -81,10 +81,10 @@ export const BeatsPage: React.FC<BeatsPageProps> = ({ beats }) => {
               <span>Full Catalog</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
-              Beat Store &amp; Stems
+              Type Beat Store &amp; Stems
             </h1>
             <p className="text-xs sm:text-sm text-zinc-400 mt-2">
-              Browse through our collection of free, tagged beats. Click cover art to play audio previews.
+              Browse through our collection of free, tagged type beats and rap instrumentals. Click cover art to play audio previews.
             </p>
           </div>
 
@@ -339,6 +339,8 @@ export const BeatsPage: React.FC<BeatsPageProps> = ({ beats }) => {
             })}
           </motion.div>
         )}
+
+
       </div>
     </div>
   );

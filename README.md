@@ -1,5 +1,7 @@
 # DZVNbeats Portfolio
 
+[![DZVNbeats Banner](public/banner.png)](https://denzven.github.io/DZVNbeats/)
+
 A personal portfolio and beat store website built with React, Vite, and Tailwind CSS.
 
 ## Available Beats
