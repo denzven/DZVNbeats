@@ -6,5 +6,4 @@ dist-ssr
 .env.*
 !.env.example
 .DS_Store
-public/beats
-public/covers
+
