@@ -1,15 +1,15 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { parseFile } from 'music-metadata';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { parseFile } from "music-metadata";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const publicBeatsDir = path.join(__dirname, 'public', 'beats');
-const publicCoversDir = path.join(__dirname, 'public', 'covers');
-const srcDataDir = path.join(__dirname, 'src', 'data');
-const outputFile = path.join(srcDataDir, 'beats.json');
+const publicBeatsDir = path.join(__dirname, "public", "beats");
+const publicCoversDir = path.join(__dirname, "public", "covers");
+const srcDataDir = path.join(__dirname, "src", "data");
+const outputFile = path.join(srcDataDir, "beats.json");
 
 // Ensure directories exist
 if (!fs.existsSync(publicBeatsDir)) {
@@ -23,8 +23,10 @@ if (!fs.existsSync(srcDataDir)) {
 }
 
 async function generateManifest() {
-  const files = fs.readdirSync(publicBeatsDir).filter(f => !f.startsWith('.'));
-  const audioExtensions = ['.mp3', '.wav', '.m4a', '.ogg', '.flac'];
+  const files = fs
+    .readdirSync(publicBeatsDir)
+    .filter((f) => !f.startsWith("."));
+  const audioExtensions = [".mp3", ".wav", ".m4a", ".ogg", ".flac"];
   const beats = [];
 
   for (let index = 0; index < files.length; index++) {
@@ -36,21 +38,23 @@ async function generateManifest() {
 
     // Sanitize web-unsafe URL characters (#, ?, %, spaces)
     let sanitizedFile = file
-      .replace(/#/g, 'sharp')
-      .replace(/\?/g, '')
-      .replace(/%/g, '')
-      .replace(/\s+/g, '_');
+      .replace(/#/g, "sharp")
+      .replace(/\?/g, "")
+      .replace(/%/g, "")
+      .replace(/\s+/g, "_");
 
     if (sanitizedFile !== file) {
       const sanitizedFilePath = path.join(publicBeatsDir, sanitizedFile);
       fs.renameSync(originalFilePath, sanitizedFilePath);
-      console.log(`🔧 [Sanitizer] Renamed file '${file}' -> '${sanitizedFile}'`);
+      console.log(
+        `🔧 [Sanitizer] Renamed file '${file}' -> '${sanitizedFile}'`,
+      );
       file = sanitizedFile;
       originalFilePath = sanitizedFilePath;
     }
 
     const basename = path.basename(file, ext);
-    const beatId = `beat-${index + 1}-${basename.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+    const beatId = `beat-${index + 1}-${basename.toLowerCase().replace(/[^a-z0-9]/g, "-")}`;
 
     let embeddedMeta = null;
     try {
@@ -67,13 +71,15 @@ async function generateManifest() {
     if (common.picture && common.picture.length > 0) {
       try {
         const picture = common.picture[0];
-        const imageExt = picture.format.includes('png') ? 'png' : 'jpg';
+        const imageExt = picture.format.includes("png") ? "png" : "jpg";
         const coverFilename = `${beatId}-cover.${imageExt}`;
         const coverPath = path.join(publicCoversDir, coverFilename);
 
         fs.writeFileSync(coverPath, picture.data);
         coverArtUrl = `./covers/${coverFilename}`;
-        console.log(`🖼️ [Cover Art Extracted] Extracted ID3 artwork for ${file} -> ${coverFilename}`);
+        console.log(
+          `🖼️ [Cover Art Extracted] Extracted ID3 artwork for ${file} -> ${coverFilename}`,
+        );
       } catch (imgErr) {
         console.warn(`Could not save cover image for ${file}:`, imgErr.message);
       }
@@ -83,12 +89,16 @@ async function generateManifest() {
     let title = common.title ? common.title.trim() : null;
     if (!title) {
       title = basename
-        .replace(/^DZVN_/i, '')
-        .replace(/_\d+BPM.*/i, '')
-        .replace(/[-_]/g, ' ')
-        .replace(/sharp/gi, '')
+        .replace(/^DZVN_/i, "")
+        .replace(/_\d+BPM.*/i, "")
+        .replace(/[-_]/g, " ")
+        .replace(/sharp/gi, "")
         .trim();
-      title = title.split(' ').filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      title = title
+        .split(" ")
+        .filter(Boolean)
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
     }
 
     // 3. BPM (Utmost Priority: Real ID3 BPM -> Filename BPM -> null)
@@ -101,23 +111,25 @@ async function generateManifest() {
     // 4. Key Signature (Utmost Priority: Real ID3 Key -> Filename Key -> null)
     let key = common.key || common.initialKey || null;
     if (!key) {
-      const keyMatch = file.match(/([A-G](?:sharp|flat|[#b])?(?:min|minor|maj|major|mjr))/i);
+      const keyMatch = file.match(
+        /([A-G](?:sharp|flat|[#b])?(?:min|minor|maj|major|mjr))/i,
+      );
       if (keyMatch) {
         let parsedKey = keyMatch[1].toLowerCase();
-        parsedKey = parsedKey.replace(/sharp/g, '#').replace(/flat/g, 'b');
+        parsedKey = parsedKey.replace(/sharp/g, "#").replace(/flat/g, "b");
         const noteMatch = parsedKey.match(/^[a-g][#b]?/);
         if (noteMatch) {
           let note = noteMatch[0];
           let scale = parsedKey.substring(note.length);
-          if (scale.startsWith('mjr') || scale.startsWith('maj')) {
-            scale = 'major';
-          } else if (scale.startsWith('min')) {
-            scale = 'minor';
+          if (scale.startsWith("mjr") || scale.startsWith("maj")) {
+            scale = "major";
+          } else if (scale.startsWith("min")) {
+            scale = "minor";
           }
           note = note.charAt(0).toUpperCase() + note.slice(1);
           key = `${note} ${scale}`;
           // Make it match user example exactly if needed, e.g. "F#minor" or "G major"
-          if (scale === 'minor' && note.length > 1) key = `${note}${scale}`; // F#minor
+          if (scale === "minor" && note.length > 1) key = `${note}${scale}`; // F#minor
         }
       }
     }
@@ -125,11 +137,41 @@ async function generateManifest() {
     // 5. Genre / Tags (Utmost Priority: Real ID3 Genre -> null)
     let tags = [];
     if (common.genre && common.genre.length > 0) {
-      tags = common.genre.map(g => g.trim());
+      tags = common.genre.map((g) => g.trim());
     }
 
     // Web-safe URL
     const webSafeUrl = `./beats/${encodeURIComponent(file)}`;
+
+    // Parse specific DZVN metadata from the end of the filename
+    // Format: ..._[ava|sold]_[free|std|ex]_[Tagged|Untagged]
+    let status = "Available";
+    let beatType = "Standard";
+    let isTagged = false;
+    let price = 29;
+
+    const metaMatch = basename.match(
+      /_(ava|sold)_(free|std|ex)_(tagged|untagged)$/i,
+    );
+    if (metaMatch) {
+      const parsedStatus = metaMatch[1].toLowerCase();
+      const parsedType = metaMatch[2].toLowerCase();
+      const parsedTagged = metaMatch[3].toLowerCase();
+
+      status = parsedStatus === "sold" ? "Sold" : "Available";
+      isTagged = parsedTagged === "tagged";
+
+      if (parsedType === "free") {
+        beatType = "Free";
+        price = 0;
+      } else if (parsedType === "ex") {
+        beatType = "Exclusive";
+        price = 199;
+      } else {
+        beatType = "Standard";
+        price = 29;
+      }
+    }
 
     beats.push({
       id: beatId,
@@ -140,12 +182,17 @@ async function generateManifest() {
       bpm: bpm || undefined,
       key: key || undefined,
       tags: tags.length > 0 ? tags : [],
-      price: 0
+      price: price,
+      status: status,
+      beatType: beatType,
+      isTagged: isTagged,
     });
   }
 
   fs.writeFileSync(outputFile, JSON.stringify(beats, null, 2));
-  console.log(`✅ [Manifest Generator] Processed ${beats.length} real beat(s) into src/data/beats.json`);
+  console.log(
+    `✅ [Manifest Generator] Processed ${beats.length} real beat(s) into src/data/beats.json`,
+  );
 }
 
 generateManifest();

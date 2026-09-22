@@ -1,7 +1,7 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Play, ShieldCheck, Sparkles, ArrowDown } from 'lucide-react';
-import { useAudioStore } from '../store/useAudioStore';
+import React from "react";
+import { motion } from "framer-motion";
+import { Play, ShieldCheck, Sparkles, ArrowDown } from "lucide-react";
+import { useAudioStore } from "../store/useAudioStore";
 
 export const Hero: React.FC = () => {
   const { playlist, playTrack } = useAudioStore();
@@ -68,8 +68,10 @@ export const Hero: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mt-6 text-base sm:text-lg text-zinc-400 leading-relaxed font-normal max-w-2xl mx-auto"
           >
-            Studio-grade Trap, Synthwave, RnB &amp; Drill instrumentals produced by{' '}
-            <strong className="text-white font-semibold">DZVN</strong>. Instant untagged WAV downloads, stems, and direct royalty-free licensing.
+            Studio-grade Trap, Synthwave, RnB &amp; Drill instrumentals produced
+            by <strong className="text-white font-semibold">DZVN</strong>.
+            Instant untagged WAV downloads, stems, and direct royalty-free
+            licensing.
           </motion.p>
 
           {/* Action CTAs */}
@@ -104,23 +106,39 @@ export const Hero: React.FC = () => {
             className="mt-12 pt-8 border-t border-zinc-900/80 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto text-left"
           >
             <div className="p-3 rounded-lg bg-zinc-900/40 border border-zinc-900">
-              <p className="text-xs font-mono text-zinc-500 uppercase">Tempo Range</p>
-              <p className="text-sm font-bold text-zinc-200 mt-0.5">110 – 165 BPM</p>
+              <p className="text-xs font-mono text-zinc-500 uppercase">
+                Tempo Range
+              </p>
+              <p className="text-sm font-bold text-zinc-200 mt-0.5">
+                110 – 165 BPM
+              </p>
             </div>
 
             <div className="p-3 rounded-lg bg-zinc-900/40 border border-zinc-900">
-              <p className="text-xs font-mono text-zinc-500 uppercase">Mastering</p>
-              <p className="text-sm font-bold text-zinc-200 mt-0.5">24-bit / 48kHz WAV</p>
+              <p className="text-xs font-mono text-zinc-500 uppercase">
+                Mastering
+              </p>
+              <p className="text-sm font-bold text-zinc-200 mt-0.5">
+                24-bit / 48kHz WAV
+              </p>
             </div>
 
             <div className="p-3 rounded-lg bg-zinc-900/40 border border-zinc-900">
-              <p className="text-xs font-mono text-zinc-500 uppercase">Licensing</p>
-              <p className="text-sm font-bold text-zinc-200 mt-0.5">Instant Direct Lease</p>
+              <p className="text-xs font-mono text-zinc-500 uppercase">
+                Licensing
+              </p>
+              <p className="text-sm font-bold text-zinc-200 mt-0.5">
+                Instant Direct Lease
+              </p>
             </div>
 
             <div className="p-3 rounded-lg bg-zinc-900/40 border border-zinc-900">
-              <p className="text-xs font-mono text-zinc-500 uppercase">Delivery</p>
-              <p className="text-sm font-bold text-zinc-200 mt-0.5">Automated Stems</p>
+              <p className="text-xs font-mono text-zinc-500 uppercase">
+                Delivery
+              </p>
+              <p className="text-sm font-bold text-zinc-200 mt-0.5">
+                Automated Stems
+              </p>
             </div>
           </motion.div>
         </div>
@@ -128,7 +146,10 @@ export const Hero: React.FC = () => {
 
       {/* Subtle Scroll Down Anchor */}
       <div className="mt-12 text-center">
-        <a href="#beats" className="inline-flex flex-col items-center text-zinc-500 hover:text-zinc-300 transition-colors text-xs font-mono gap-1">
+        <a
+          href="#beats"
+          className="inline-flex flex-col items-center text-zinc-500 hover:text-zinc-300 transition-colors text-xs font-mono gap-1"
+        >
           <span>BROWSE CATALOG</span>
           <ArrowDown className="w-3.5 h-3.5 animate-bounce mt-1" />
         </a>

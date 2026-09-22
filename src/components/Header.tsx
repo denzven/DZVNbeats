@@ -1,6 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Link, NavLink } from 'react-router-dom';
-import { Download, Instagram, Mail, Volume2, ShieldCheck, Home, Menu, X, Youtube } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Link, NavLink } from "react-router-dom";
+import {
+  Download,
+  Instagram,
+  Mail,
+  Volume2,
+  ShieldCheck,
+  Home,
+  Menu,
+  X,
+  Youtube,
+} from "lucide-react";
 
 export const Header: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -11,17 +21,17 @@ export const Header: React.FC = () => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
 
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
     };
-    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    window.addEventListener("beforeinstallprompt", handleBeforeInstall);
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
     };
   }, []);
 
@@ -29,7 +39,7 @@ export const Header: React.FC = () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
+      if (outcome === "accepted") {
         setDeferredPrompt(null);
       }
     }
@@ -37,16 +47,20 @@ export const Header: React.FC = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
         scrolled
-          ? 'bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/80 py-3 shadow-xl'
-          : 'bg-transparent py-5'
+          ? "bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/80 py-3 shadow-xl"
+          : "bg-transparent py-5"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3 group">
           <div className="w-10 h-10 rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 flex items-center justify-center shadow-inner group-hover:border-zinc-500 transition-colors">
-            <img src={`${import.meta.env.BASE_URL}pwa-192x192.png`} alt="DZVNbeats Favicon" className="w-full h-full object-cover" />
+            <img
+              src={`${import.meta.env.BASE_URL}pwa-192x192.png`}
+              alt="DZVNbeats Favicon"
+              className="w-full h-full object-cover"
+            />
           </div>
           <div>
             <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
@@ -54,7 +68,9 @@ export const Header: React.FC = () => {
             </span>
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span className="text-[10px] uppercase font-mono tracking-widest text-zinc-400">Beat Collection</span>
+              <span className="text-[10px] uppercase font-mono tracking-widest text-zinc-400">
+                Beat Collection
+              </span>
             </div>
           </div>
         </Link>
@@ -66,7 +82,9 @@ export const Header: React.FC = () => {
             end
             className={({ isActive }) =>
               `flex items-center gap-1.5 transition-colors ${
-                isActive ? 'text-white font-bold border-b border-white pb-0.5' : 'text-zinc-400 hover:text-white'
+                isActive
+                  ? "text-white font-bold border-b border-white pb-0.5"
+                  : "text-zinc-400 hover:text-white"
               }`
             }
           >
@@ -78,7 +96,9 @@ export const Header: React.FC = () => {
             to="/beats"
             className={({ isActive }) =>
               `flex items-center gap-1.5 transition-colors ${
-                isActive ? 'text-white font-bold border-b border-white pb-0.5' : 'text-zinc-400 hover:text-white'
+                isActive
+                  ? "text-white font-bold border-b border-white pb-0.5"
+                  : "text-zinc-400 hover:text-white"
               }`
             }
           >
@@ -90,7 +110,9 @@ export const Header: React.FC = () => {
             to="/licensing"
             className={({ isActive }) =>
               `flex items-center gap-1.5 transition-colors ${
-                isActive ? 'text-white font-bold border-b border-white pb-0.5' : 'text-zinc-400 hover:text-white'
+                isActive
+                  ? "text-white font-bold border-b border-white pb-0.5"
+                  : "text-zinc-400 hover:text-white"
               }`
             }
           >
@@ -150,7 +172,11 @@ export const Header: React.FC = () => {
             className="md:hidden p-2 text-zinc-400 hover:text-white"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileMenuOpen ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <Menu className="w-5 h-5" />
+            )}
           </button>
         </div>
       </div>
@@ -164,7 +190,7 @@ export const Header: React.FC = () => {
             onClick={() => setMobileMenuOpen(false)}
             className={({ isActive }) =>
               `flex items-center gap-2 text-sm font-mono tracking-wider uppercase transition-colors ${
-                isActive ? 'text-white font-bold' : 'text-zinc-400'
+                isActive ? "text-white font-bold" : "text-zinc-400"
               }`
             }
           >
@@ -176,7 +202,7 @@ export const Header: React.FC = () => {
             onClick={() => setMobileMenuOpen(false)}
             className={({ isActive }) =>
               `flex items-center gap-2 text-sm font-mono tracking-wider uppercase transition-colors ${
-                isActive ? 'text-white font-bold' : 'text-zinc-400'
+                isActive ? "text-white font-bold" : "text-zinc-400"
               }`
             }
           >
@@ -188,7 +214,7 @@ export const Header: React.FC = () => {
             onClick={() => setMobileMenuOpen(false)}
             className={({ isActive }) =>
               `flex items-center gap-2 text-sm font-mono tracking-wider uppercase transition-colors ${
-                isActive ? 'text-white font-bold' : 'text-zinc-400'
+                isActive ? "text-white font-bold" : "text-zinc-400"
               }`
             }
           >
@@ -200,4 +226,3 @@ export const Header: React.FC = () => {
     </header>
   );
 };
-

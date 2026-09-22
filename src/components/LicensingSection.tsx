@@ -1,43 +1,53 @@
-import React from 'react';
-import { Check, ShieldCheck, Sparkles, FileAudio, Disc, Crown } from 'lucide-react';
-import { LicensingTier } from '../types/beat';
-import { useAudioStore } from '../store/useAudioStore';
+import React from "react";
+import {
+  Check,
+  ShieldCheck,
+  Sparkles,
+  FileAudio,
+  Disc,
+  Crown,
+} from "lucide-react";
+import { LicensingTier } from "../types/beat";
+import { useAudioStore } from "../store/useAudioStore";
 
 export const licensingTiers: LicensingTier[] = [
   {
-    id: 'tier-free',
-    name: 'Free (Tagged)',
+    id: "tier-free",
+    name: "Free (Tagged)",
     price: 0,
-    format: '320kbps MP3 (Tagged)',
-    streamLimit: 'Non-profit use only',
-    distributionLimit: '0 Copies',
+    format: "320kbps MP3 (Tagged)",
+    streamLimit: "Non-profit use only",
+    distributionLimit: "0 Copies",
     radioRights: false,
     stemFiles: false,
-    description: 'Perfect for listening, writing, and non-commercial YouTube/SoundCloud uploads. Must credit (Prod. by DZVN).'
+    description:
+      "Perfect for listening, writing, and non-commercial YouTube/SoundCloud uploads. Must credit (Prod. by DZVN).",
   },
   {
-    id: 'tier-basic',
-    name: 'Basic Lease',
+    id: "tier-basic",
+    name: "Basic Lease",
     price: 200,
     popular: true,
-    format: 'High Quality WAV (Untagged)',
-    streamLimit: 'Up to 50,000 Streams',
-    distributionLimit: '1,000 Copies',
+    format: "High Quality WAV (Untagged)",
+    streamLimit: "Up to 50,000 Streams",
+    distributionLimit: "1,000 Copies",
     radioRights: false,
     stemFiles: false,
-    description: 'Great for independent artists releasing singles on Spotify/Apple Music.'
+    description:
+      "Great for independent artists releasing singles on Spotify/Apple Music.",
   },
   {
-    id: 'tier-exclusive',
-    name: 'Exclusive Contract',
+    id: "tier-exclusive",
+    name: "Exclusive Contract",
     price: 1000,
-    format: 'WAV + Track Stems (Untagged)',
-    streamLimit: 'UNLIMITED Streams',
-    distributionLimit: 'UNLIMITED Copies',
+    format: "WAV + Track Stems (Untagged)",
+    streamLimit: "UNLIMITED Streams",
+    distributionLimit: "UNLIMITED Copies",
     radioRights: true,
     stemFiles: true,
-    description: 'Full ownership rights. Track removed immediately from catalog upon purchase.'
-  }
+    description:
+      "Full ownership rights. Track removed immediately from catalog upon purchase.",
+  },
 ];
 
 export const LicensingSection: React.FC = () => {
@@ -46,7 +56,10 @@ export const LicensingSection: React.FC = () => {
   const activeBeat = currentTrack || playlist[0];
 
   return (
-    <section id="licensing" className="py-24 bg-zinc-950 text-zinc-100 border-b border-zinc-900">
+    <section
+      id="licensing"
+      className="py-24 bg-zinc-950 text-zinc-100 border-b border-zinc-900"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
@@ -58,7 +71,8 @@ export const LicensingSection: React.FC = () => {
             Licensing Options
           </h2>
           <p className="text-zinc-400 text-sm sm:text-base mt-3">
-            Choose the right license tier for your project. All leases include instant untagged delivery.
+            Choose the right license tier for your project. All leases include
+            instant untagged delivery.
           </p>
         </div>
 
@@ -69,8 +83,8 @@ export const LicensingSection: React.FC = () => {
               key={tier.id}
               className={`relative flex flex-col justify-between p-8 rounded-2xl border transition-all duration-300 ${
                 tier.popular
-                  ? 'bg-zinc-900/90 border-zinc-600 shadow-2xl ring-1 ring-zinc-400/20 md:-translate-y-2'
-                  : 'bg-zinc-900/40 border-zinc-900 hover:border-zinc-800'
+                  ? "bg-zinc-900/90 border-zinc-600 shadow-2xl ring-1 ring-zinc-400/20 md:-translate-y-2"
+                  : "bg-zinc-900/40 border-zinc-900 hover:border-zinc-800"
               }`}
             >
               {tier.popular && (
@@ -84,19 +98,27 @@ export const LicensingSection: React.FC = () => {
                 {/* Tier Name & Header */}
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold text-white">{tier.name}</h3>
-                  {tier.name === 'Free (Tagged)' && <FileAudio className="w-5 h-5 text-zinc-500" />}
-                  {tier.name === 'Basic Lease' && <Disc className="w-5 h-5 text-zinc-300" />}
-                  {tier.name === 'Exclusive Contract' && <Crown className="w-5 h-5 text-amber-400" />}
+                  {tier.name === "Free (Tagged)" && (
+                    <FileAudio className="w-5 h-5 text-zinc-500" />
+                  )}
+                  {tier.name === "Basic Lease" && (
+                    <Disc className="w-5 h-5 text-zinc-300" />
+                  )}
+                  {tier.name === "Exclusive Contract" && (
+                    <Crown className="w-5 h-5 text-amber-400" />
+                  )}
                 </div>
 
                 {/* Price Display */}
                 <div className="flex items-baseline gap-1 mb-4">
                   <span className="text-4xl font-extrabold font-mono text-white">
-                    {tier.price === 0 ? 'FREE' : `₹${tier.price}`}
+                    {tier.price === 0 ? "FREE" : `₹${tier.price}`}
                   </span>
                   {tier.price !== 0 && (
                     <span className="text-xs text-zinc-500 font-mono">
-                      {tier.name === 'Exclusive Contract' ? ' starting' : ' / lease'}
+                      {tier.name === "Exclusive Contract"
+                        ? " starting"
+                        : " / lease"}
                     </span>
                   )}
                 </div>
@@ -109,29 +131,52 @@ export const LicensingSection: React.FC = () => {
                 <div className="space-y-3 text-xs text-zinc-300 border-t border-zinc-800/80 pt-6">
                   <div className="flex items-start gap-2.5">
                     <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                    <span><strong>Audio Deliverable:</strong> {tier.format}</span>
+                    <span>
+                      <strong>Audio Deliverable:</strong> {tier.format}
+                    </span>
                   </div>
 
                   <div className="flex items-start gap-2.5">
                     <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                    <span><strong>Stream Cap:</strong> {tier.streamLimit}</span>
+                    <span>
+                      <strong>Stream Cap:</strong> {tier.streamLimit}
+                    </span>
                   </div>
 
                   <div className="flex items-start gap-2.5">
                     <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                    <span><strong>Physical Distribution:</strong> {tier.distributionLimit}</span>
+                    <span>
+                      <strong>Physical Distribution:</strong>{" "}
+                      {tier.distributionLimit}
+                    </span>
                   </div>
 
                   <div className="flex items-start gap-2.5">
-                    <Check className={`w-4 h-4 ${tier.stemFiles ? 'text-emerald-400' : 'text-zinc-600'} flex-shrink-0 mt-0.5`} />
-                    <span className={tier.stemFiles ? 'text-zinc-200' : 'text-zinc-500 line-through'}>
+                    <Check
+                      className={`w-4 h-4 ${tier.stemFiles ? "text-emerald-400" : "text-zinc-600"} flex-shrink-0 mt-0.5`}
+                    />
+                    <span
+                      className={
+                        tier.stemFiles
+                          ? "text-zinc-200"
+                          : "text-zinc-500 line-through"
+                      }
+                    >
                       Tracked Stems / Multi-tracks Included
                     </span>
                   </div>
 
                   <div className="flex items-start gap-2.5">
-                    <Check className={`w-4 h-4 ${tier.radioRights ? 'text-emerald-400' : 'text-zinc-600'} flex-shrink-0 mt-0.5`} />
-                    <span className={tier.radioRights ? 'text-zinc-200' : 'text-zinc-500 line-through'}>
+                    <Check
+                      className={`w-4 h-4 ${tier.radioRights ? "text-emerald-400" : "text-zinc-600"} flex-shrink-0 mt-0.5`}
+                    />
+                    <span
+                      className={
+                        tier.radioRights
+                          ? "text-zinc-200"
+                          : "text-zinc-500 line-through"
+                      }
+                    >
                       Radio Airplay &amp; Commercial Broadcasting
                     </span>
                   </div>
@@ -142,17 +187,33 @@ export const LicensingSection: React.FC = () => {
               <div className="mt-8 pt-6 border-t border-zinc-800/60">
                 <button
                   onClick={() => {
-                    if (activeBeat) {
+                    if (
+                      activeBeat &&
+                      !(
+                        activeBeat.beatType === "Exclusive" &&
+                        tier.name !== "Exclusive Contract"
+                      )
+                    ) {
                       openInquireModal(activeBeat, tier.name);
                     }
                   }}
+                  disabled={
+                    activeBeat?.beatType === "Exclusive" &&
+                    tier.name !== "Exclusive Contract"
+                  }
                   className={`w-full py-3 px-4 rounded-xl font-semibold text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 ${
-                    tier.popular
-                      ? 'bg-white hover:bg-zinc-200 text-zinc-950'
-                      : 'bg-zinc-900 hover:bg-zinc-800 text-zinc-100 border border-zinc-800'
+                    activeBeat?.beatType === "Exclusive" &&
+                    tier.name !== "Exclusive Contract"
+                      ? "bg-zinc-800 text-zinc-500 cursor-not-allowed opacity-70"
+                      : tier.popular
+                        ? "bg-white hover:bg-zinc-200 text-zinc-950"
+                        : "bg-zinc-900 hover:bg-zinc-800 text-zinc-100 border border-zinc-800"
                   }`}
                 >
-                  Inquire {tier.name}
+                  {activeBeat?.beatType === "Exclusive" &&
+                  tier.name !== "Exclusive Contract"
+                    ? "Unavailable for this Beat"
+                    : `Inquire ${tier.name}`}
                 </button>
               </div>
             </div>

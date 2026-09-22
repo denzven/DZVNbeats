@@ -9,10 +9,13 @@ export interface Beat {
   tags: string[];
   price: number;
   duration?: string;
+  status?: "Available" | "Sold";
+  beatType?: "Free" | "Standard" | "Exclusive";
+  isTagged?: boolean;
 }
 
-
-export type LicensingTierName = 'Free (Tagged)' | 'Basic Lease' | 'Premium Lease' | 'Exclusive Contract';
+export type LicensingTierName =
+  "Free (Tagged)" | "Basic Lease" | "Premium Lease" | "Exclusive Contract";
 
 export interface LicensingTier {
   id: string;

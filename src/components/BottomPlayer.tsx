@@ -1,19 +1,42 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Disc, Download } from 'lucide-react';
-import { useAudioStore } from '../store/useAudioStore';
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  Volume2,
+  VolumeX,
+  Disc,
+  Download,
+} from "lucide-react";
+import { useAudioStore } from "../store/useAudioStore";
 
 // Helper to resolve URL using Vite BASE_URL (e.g. '/' in dev or '/DZVNbeats/' in production)
 const resolveAudioUrl = (rawUrl: string): string => {
-  if (!rawUrl) return '';
-  if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://') || rawUrl.startsWith('blob:')) {
+  if (!rawUrl) return "";
+  if (
+    rawUrl.startsWith("http://") ||
+    rawUrl.startsWith("https://") ||
+    rawUrl.startsWith("blob:")
+  ) {
     return rawUrl;
   }
-  const cleanPath = rawUrl.replace(/^\.\//, '').replace(/^\//, '');
-  const baseUrl = import.meta.env.BASE_URL || '/';
-  const finalBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  const cleanPath = rawUrl.replace(/^\.\//, "").replace(/^\//, "");
+  const baseUrl = import.meta.env.BASE_URL || "/";
+  const finalBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
   return `${finalBase}${cleanPath}`;
 };
 
+/**
+ * BottomPlayer is the persistent audio player component that sits at the bottom of the screen.
+ * It strictly synchronizes its internal HTMLAudioElement with the global Zustand `useAudioStore`.
+ * 
+ * Key Features:
+ * - Listens to `isPlaying` and `currentTrack` changes to automatically trigger play/pause on the `<audio>` element.
+ * - Handles `AbortError` seamlessly if tracks are skipped rapidly.
+ * - **Synth Fallback Mechanism**: If the `<audio>` element fails to load the actual file (e.g. 404), it falls back
+ *   to generating a procedural Web Audio API Synthesizer (Oscillator + Gain Node) to demonstrate playback functionality.
+ */
 export const BottomPlayer: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const synthContextRef = useRef<AudioContext | null>(null);
@@ -31,16 +54,17 @@ export const BottomPlayer: React.FC = () => {
     currentTime,
     duration,
     togglePlay,
+    pauseTrack,
     nextTrack,
     prevTrack,
     setVolume,
     toggleMute,
     setCurrentTime,
     setDuration,
-    openInquireModal
+    openInquireModal,
   } = useAudioStore();
 
-  const activeAudioUrl = currentTrack ? resolveAudioUrl(currentTrack.url) : '';
+  const activeAudioUrl = currentTrack ? resolveAudioUrl(currentTrack.url) : "";
 
   // Clean up Web Audio synth
   const stopSynth = () => {
@@ -62,12 +86,13 @@ export const BottomPlayer: React.FC = () => {
   const startSynthFallback = () => {
     stopSynth();
     try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioCtx =
+        window.AudioContext || (window as any).webkitAudioContext;
       if (!synthContextRef.current) {
         synthContextRef.current = new AudioCtx();
       }
       const ctx = synthContextRef.current;
-      if (ctx.state === 'suspended') {
+      if (ctx.state === "suspended") {
         ctx.resume();
       }
 
@@ -86,12 +111,19 @@ export const BottomPlayer: React.FC = () => {
         const noteGain = ctx.createGain();
 
         // Alternating pitch synth pattern
-        const baseFreq = step % 4 === 0 ? 130.81 : step % 2 === 0 ? 196.00 : 261.63;
-        osc.type = step % 4 === 0 ? 'sawtooth' : 'sine';
+        const baseFreq =
+          step % 4 === 0 ? 130.81 : step % 2 === 0 ? 196.0 : 261.63;
+        osc.type = step % 4 === 0 ? "sawtooth" : "sine";
         osc.frequency.setValueAtTime(baseFreq, ctx.currentTime);
 
-        noteGain.gain.setValueAtTime(isMuted ? 0 : volume * 0.25, ctx.currentTime);
-        noteGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+        noteGain.gain.setValueAtTime(
+          isMuted ? 0 : volume * 0.25,
+          ctx.currentTime,
+        );
+        noteGain.gain.exponentialRampToValueAtTime(
+          0.001,
+          ctx.currentTime + 0.2,
+        );
 
         osc.connect(noteGain);
         noteGain.connect(gainNode);
@@ -103,7 +135,7 @@ export const BottomPlayer: React.FC = () => {
 
       setUsingSynthFallback(true);
     } catch (err) {
-      console.warn('Web Audio Synth fallback error:', err);
+      console.warn("Web Audio Synth fallback error:", err);
     }
   };
 
@@ -114,7 +146,10 @@ export const BottomPlayer: React.FC = () => {
 
     if (isPlaying) {
       // Force reload audio src when track changes
-      if (audio.src !== window.location.origin + activeAudioUrl && audio.src !== activeAudioUrl) {
+      if (
+        audio.src !== window.location.origin + activeAudioUrl &&
+        audio.src !== activeAudioUrl
+      ) {
         audio.src = activeAudioUrl;
         audio.load();
       }
@@ -126,7 +161,14 @@ export const BottomPlayer: React.FC = () => {
             stopSynth();
           })
           .catch((err) => {
-            console.warn('HTML5 audio play blocked or failed. Activating synth fallback:', err);
+            if (err.name === "AbortError") {
+              // The play request was interrupted by a new request or a pause call.
+              return;
+            }
+            console.warn(
+              "HTML5 audio play blocked or failed. Activating synth fallback:",
+              err,
+            );
             startSynthFallback();
           });
       }
@@ -146,24 +188,42 @@ export const BottomPlayer: React.FC = () => {
       audioRef.current.volume = isMuted ? 0 : volume;
     }
     if (synthGainRef.current && synthContextRef.current) {
-      synthGainRef.current.gain.setValueAtTime(isMuted ? 0 : volume * 0.3, synthContextRef.current.currentTime);
+      synthGainRef.current.gain.setValueAtTime(
+        isMuted ? 0 : volume * 0.3,
+        synthContextRef.current.currentTime,
+      );
     }
   }, [volume, isMuted]);
 
   const handleTimeUpdate = () => {
     if (audioRef.current && !usingSynthFallback) {
-      setCurrentTime(audioRef.current.currentTime);
+      const audioTime = audioRef.current.currentTime;
+      if (currentTrack?.beatType === "Exclusive" && audioTime >= 30) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        pauseTrack();
+        setCurrentTime(0);
+      } else {
+        setCurrentTime(audioTime);
+      }
     }
   };
 
   const handleLoadedMetadata = () => {
     if (audioRef.current) {
-      setDuration(audioRef.current.duration || 0);
+      const actualDuration = audioRef.current.duration || 0;
+      if (currentTrack?.beatType === "Exclusive" && actualDuration > 30) {
+        setDuration(30);
+      } else {
+        setDuration(actualDuration);
+      }
     }
   };
 
-  const handleAudioError = (e: React.SyntheticEvent<HTMLAudioElement, Event>) => {
-    console.warn('Audio tag load error for path:', activeAudioUrl, e);
+  const handleAudioError = (
+    e: React.SyntheticEvent<HTMLAudioElement, Event>,
+  ) => {
+    console.warn("Audio tag load error for path:", activeAudioUrl, e);
     if (isPlaying) {
       startSynthFallback();
     }
@@ -174,7 +234,10 @@ export const BottomPlayer: React.FC = () => {
   };
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTime = parseFloat(e.target.value);
+    let newTime = parseFloat(e.target.value);
+    if (currentTrack?.beatType === "Exclusive" && newTime > 30) {
+      newTime = 30;
+    }
     setCurrentTime(newTime);
     if (audioRef.current && !usingSynthFallback) {
       audioRef.current.currentTime = newTime;
@@ -182,10 +245,10 @@ export const BottomPlayer: React.FC = () => {
   };
 
   const formatTime = (seconds: number) => {
-    if (isNaN(seconds) || seconds <= 0) return '0:00';
+    if (isNaN(seconds) || seconds <= 0) return "0:00";
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
   if (!currentTrack) return null;
@@ -205,7 +268,7 @@ export const BottomPlayer: React.FC = () => {
 
       {/* Mobile Thin Progress Bar (Bottom edge) */}
       <div className="md:hidden absolute bottom-0 left-0 right-0 h-[2px] bg-zinc-900">
-        <div 
+        <div
           className="h-full bg-white rounded-r-full transition-all duration-100 ease-linear"
           style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
         />
@@ -213,19 +276,50 @@ export const BottomPlayer: React.FC = () => {
 
       <div className="max-w-7xl mx-auto flex flex-row items-center justify-between gap-3">
         {/* Track Info (Left) */}
-        <div className="flex items-center gap-3 min-w-0 flex-1 md:w-1/4 cursor-pointer md:cursor-default" onClick={() => {
-          // Future: Expand to full screen player on mobile
-        }}>
+        <div
+          className="flex items-center gap-3 min-w-0 flex-1 md:w-1/4 cursor-pointer md:cursor-default"
+          onClick={() => {
+            // Future: Expand to full screen player on mobile
+          }}
+        >
           <div className="relative w-10 h-10 md:w-11 md:h-11 rounded-md md:rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center flex-shrink-0 overflow-hidden">
             {currentTrack.coverArt ? (
-              <img src={resolveAudioUrl(currentTrack.coverArt)} alt={currentTrack.title} className="w-full h-full object-cover" />
+              <img
+                src={resolveAudioUrl(currentTrack.coverArt)}
+                alt={currentTrack.title}
+                className="w-full h-full object-cover"
+              />
             ) : (
-              <Disc className={`w-5 h-5 md:w-6 md:h-6 text-zinc-300 ${isPlaying ? 'animate-spin-slow' : ''}`} />
+              <Disc
+                className={`w-5 h-5 md:w-6 md:h-6 text-zinc-300 ${isPlaying ? "animate-spin-slow" : ""}`}
+              />
             )}
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
-              <h4 className="font-bold text-sm text-white truncate">{currentTrack.title}</h4>
+              <h4 className="font-bold text-sm text-white truncate">
+                {currentTrack.title}
+              </h4>
+              {isPlaying && (
+                <div className="flex items-end gap-[2px] h-3 px-1 ml-1 opacity-70">
+                  <span
+                    className="w-[2px] bg-white rounded-full animate-wave-bar"
+                    style={{ animationDelay: "0s" }}
+                  ></span>
+                  <span
+                    className="w-[2px] bg-white rounded-full animate-wave-bar"
+                    style={{ animationDelay: "0.15s" }}
+                  ></span>
+                  <span
+                    className="w-[2px] bg-white rounded-full animate-wave-bar"
+                    style={{ animationDelay: "0.3s" }}
+                  ></span>
+                  <span
+                    className="w-[2px] bg-white rounded-full animate-wave-bar"
+                    style={{ animationDelay: "0.45s" }}
+                  ></span>
+                </div>
+              )}
               {usingSynthFallback && (
                 <span className="px-1.5 py-0.5 text-[9px] font-mono bg-zinc-800 text-zinc-400 rounded hidden sm:inline-block">
                   Synth Mode
@@ -255,7 +349,7 @@ export const BottomPlayer: React.FC = () => {
           </button>
           <button
             onClick={togglePlay}
-            aria-label={isPlaying ? 'Pause' : 'Play'}
+            aria-label={isPlaying ? "Pause" : "Play"}
             className="text-white active:scale-95 transition-transform flex items-center justify-center"
           >
             {isPlaying ? (
@@ -279,7 +373,7 @@ export const BottomPlayer: React.FC = () => {
 
             <button
               onClick={togglePlay}
-              aria-label={isPlaying ? 'Pause' : 'Play'}
+              aria-label={isPlaying ? "Pause" : "Play"}
               className="w-9 h-9 rounded-full bg-white text-zinc-950 flex items-center justify-center hover:bg-zinc-200 transition-all shadow active:scale-95"
             >
               {isPlaying ? (
@@ -315,7 +409,10 @@ export const BottomPlayer: React.FC = () => {
         {/* Right Volume & Quick Inquire (Desktop) */}
         <div className="hidden md:flex items-center justify-end gap-4 w-1/4">
           <div className="flex items-center gap-2">
-            <button onClick={toggleMute} className="text-zinc-400 hover:text-white transition-colors">
+            <button
+              onClick={toggleMute}
+              className="text-zinc-400 hover:text-white transition-colors"
+            >
               {isMuted || volume === 0 ? (
                 <VolumeX className="w-4 h-4 text-zinc-500" />
               ) : (

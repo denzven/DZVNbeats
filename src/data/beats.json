@@ -1,26 +1,32 @@
 [
   {
-    "id": "beat-1-dzvn-akbaar-100bpm-gmjr",
+    "id": "beat-1-dzvn-akbaar-100bpm-gmjr-ava-free-tagged",
     "title": "Akbaar",
-    "filename": "DZVN_Akbaar_100BPM_Gmjr.wav",
-    "url": "./beats/DZVN_Akbaar_100BPM_Gmjr.wav",
-    "coverArt": "./covers/beat-1-dzvn-akbaar-100bpm-gmjr-cover.jpg",
+    "filename": "DZVN_Akbaar_100BPM_Gmjr_ava_free_Tagged.wav",
+    "url": "./beats/DZVN_Akbaar_100BPM_Gmjr_ava_free_Tagged.wav",
+    "coverArt": "./covers/beat-1-dzvn-akbaar-100bpm-gmjr-ava-free-tagged-cover.jpg",
     "bpm": 100,
     "key": "G major",
     "tags": [
       "Hip hop"
     ],
-    "price": 0
+    "price": 0,
+    "status": "Available",
+    "beatType": "Free",
+    "isTagged": true
   },
   {
-    "id": "beat-2-dzvn-flute-case-131bpm-fsharpmin",
+    "id": "beat-2-dzvn-flute-case-131bpm-fsharpmin-ava-free-tagged",
     "title": "Flute Case",
-    "filename": "DZVN_Flute_Case_131BPM_Fsharpmin.wav",
-    "url": "./beats/DZVN_Flute_Case_131BPM_Fsharpmin.wav",
-    "coverArt": "./covers/beat-2-dzvn-flute-case-131bpm-fsharpmin-cover.jpg",
+    "filename": "DZVN_Flute_Case_131BPM_Fsharpmin_ava_free_Tagged.wav",
+    "url": "./beats/DZVN_Flute_Case_131BPM_Fsharpmin_ava_free_Tagged.wav",
+    "coverArt": "./covers/beat-2-dzvn-flute-case-131bpm-fsharpmin-ava-free-tagged-cover.jpg",
     "bpm": 131,
     "key": "F#minor",
     "tags": [],
-    "price": 0
+    "price": 0,
+    "status": "Available",
+    "beatType": "Free",
+    "isTagged": true
   }
 ]

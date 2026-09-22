@@ -1,14 +1,28 @@
-import { create } from 'zustand';
-import { Beat, LicensingTierName } from '../types/beat';
+import { create } from "zustand";
+import { Beat, LicensingTierName } from "../types/beat";
 
+/**
+ * The AudioStoreState interface defines the global state for the audio player.
+ * It manages the currently loaded playlist, the track currently playing, playback status (play/pause),
+ * volume, and handles the logic for skipping tracks and interacting with the Inquire Modal.
+ * State is managed globally across the application using Zustand.
+ */
 interface AudioStoreState {
+  /** The full array of beats currently loaded into the player (usually from BeatsPage or Home) */
   playlist: Beat[];
+  /** The currently active/playing beat object, or null if nothing is loaded */
   currentTrack: Beat | null;
+  /** Boolean indicating whether the audio is currently playing */
   isPlaying: boolean;
+  /** Volume level from 0.0 to 1.0 */
   volume: number;
+  /** Boolean indicating whether the audio is muted */
   isMuted: boolean;
+  /** Current playback time in seconds */
   currentTime: number;
+  /** Total duration of the current track in seconds */
   duration: number;
+  /** State holding the beat and tier selected for the Inquire Modal (purchase dialog) */
   inquireModalData: { beat: Beat | null; tier?: LicensingTierName } | null;
 
   // Actions
@@ -74,7 +88,11 @@ export const useAudioStore = create<AudioStoreState>((set, get) => ({
     const { playlist, currentTrack } = get();
     if (!playlist.length) return;
     if (!currentTrack) {
-      set({ currentTrack: playlist[playlist.length - 1], isPlaying: true, currentTime: 0 });
+      set({
+        currentTrack: playlist[playlist.length - 1],
+        isPlaying: true,
+        currentTime: 0,
+      });
       return;
     }
     const currentIndex = playlist.findIndex((t) => t.id === currentTrack.id);
@@ -82,7 +100,8 @@ export const useAudioStore = create<AudioStoreState>((set, get) => ({
     set({ currentTrack: playlist[prevIndex], isPlaying: true, currentTime: 0 });
   },
 
-  setVolume: (volume) => set({ volume: Math.max(0, Math.min(1, volume)), isMuted: volume === 0 }),
+  setVolume: (volume) =>
+    set({ volume: Math.max(0, Math.min(1, volume)), isMuted: volume === 0 }),
 
   toggleMute: () => set((state) => ({ isMuted: !state.isMuted })),
 
@@ -90,7 +109,8 @@ export const useAudioStore = create<AudioStoreState>((set, get) => ({
 
   setDuration: (duration) => set({ duration }),
 
-  openInquireModal: (beat, tier = 'Free (Tagged)') => set({ inquireModalData: { beat, tier } }),
+  openInquireModal: (beat, tier = "Free (Tagged)") =>
+    set({ inquireModalData: { beat, tier } }),
 
   closeInquireModal: () => set({ inquireModalData: null }),
 }));

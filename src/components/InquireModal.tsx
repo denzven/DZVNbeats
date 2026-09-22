@@ -1,22 +1,48 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Copy, Check, Instagram, Mail, ExternalLink, MessageSquare, Music, Download } from 'lucide-react';
-import { useAudioStore } from '../store/useAudioStore';
-import { LicensingTierName } from '../types/beat';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  X,
+  Copy,
+  Check,
+  Instagram,
+  Mail,
+  ExternalLink,
+  MessageSquare,
+  Music,
+  Download,
+} from "lucide-react";
+import { useAudioStore } from "../store/useAudioStore";
+import { LicensingTierName } from "../types/beat";
 
-const tiersList: LicensingTierName[] = ['Free (Tagged)', 'Basic Lease', 'Exclusive Contract'];
+const tiersList: LicensingTierName[] = [
+  "Free (Tagged)",
+  "Basic Lease",
+  "Exclusive Contract",
+];
 
 export const InquireModal: React.FC = () => {
   const { inquireModalData, closeInquireModal } = useAudioStore();
   const [copied, setCopied] = useState(false);
-  const [selectedTier, setSelectedTier] = useState<LicensingTierName | null>(null);
+  const [selectedTier, setSelectedTier] = useState<LicensingTierName | null>(
+    null,
+  );
 
   if (!inquireModalData) return null;
 
   const { beat, tier: initialTier } = inquireModalData;
-  const currentTier = selectedTier || initialTier || 'Free (Tagged)';
 
-  const formattedMessage = beat 
+  const isExclusiveOnly = beat?.beatType === "Exclusive";
+  const availableTiers = isExclusiveOnly
+    ? ["Exclusive Contract" as LicensingTierName]
+    : tiersList;
+
+  const currentTier = availableTiers.includes(selectedTier as LicensingTierName)
+    ? selectedTier
+    : availableTiers.includes(initialTier as LicensingTierName)
+      ? initialTier
+      : availableTiers[0];
+
+  const formattedMessage = beat
     ? `Hey DZVN, I am interested in purchasing the ${currentTier} for the beat: ${beat.title}.`
     : `Hey DZVN, I am interested in purchasing a ${currentTier}. Let's discuss details.`;
 
@@ -30,14 +56,14 @@ export const InquireModal: React.FC = () => {
     // Automatically copy message for desktop user convenience
     navigator.clipboard.writeText(formattedMessage);
     setCopied(true);
-    
+
     // Attempt mobile ig.me scheme or standard profile redirect
     const igUrl = `https://ig.me/m/dzvn_editsss`;
-    window.open(igUrl, '_blank', 'noopener,noreferrer');
+    window.open(igUrl, "_blank", "noopener,noreferrer");
   };
 
   const handleEmailClick = () => {
-    const subject = beat 
+    const subject = beat
       ? encodeURIComponent(`Beat Lease Inquiry: ${beat.title} (${currentTier})`)
       : encodeURIComponent(`${currentTier} Inquiry`);
     const body = encodeURIComponent(formattedMessage);
@@ -66,14 +92,22 @@ export const InquireModal: React.FC = () => {
           {/* Modal Header */}
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white">
-              {currentTier === 'Free (Tagged)' ? <Download className="w-5 h-5" /> : <MessageSquare className="w-5 h-5" />}
+              {currentTier === "Free (Tagged)" ? (
+                <Download className="w-5 h-5" />
+              ) : (
+                <MessageSquare className="w-5 h-5" />
+              )}
             </div>
             <div>
               <h3 className="text-lg font-bold text-white">
-                {currentTier === 'Free (Tagged)' ? 'Download Free Version' : 'Buy Untagged License'}
+                {currentTier === "Free (Tagged)"
+                  ? "Download Free Version"
+                  : "Buy Untagged License"}
               </h3>
               <p className="text-xs text-zinc-400">
-                {currentTier === 'Free (Tagged)' ? 'Get the tagged beat instantly for non-profit use.' : 'DM on Instagram to purchase and receive files.'}
+                {currentTier === "Free (Tagged)"
+                  ? "Get the tagged beat instantly for non-profit use."
+                  : "DM on Instagram to purchase and receive files."}
               </p>
             </div>
           </div>
@@ -84,8 +118,12 @@ export const InquireModal: React.FC = () => {
               <div className="flex items-center gap-2.5 min-w-0">
                 <Music className="w-4 h-4 text-zinc-400 flex-shrink-0" />
                 <div className="truncate">
-                  <span className="font-semibold text-sm text-white block truncate">{beat.title}</span>
-                  <span className="text-xs font-mono text-zinc-500">{beat.bpm} BPM • {beat.key || 'Studio Track'}</span>
+                  <span className="font-semibold text-sm text-white block truncate">
+                    {beat.title}
+                  </span>
+                  <span className="text-xs font-mono text-zinc-500">
+                    {beat.bpm} BPM • {beat.key || "Studio Track"}
+                  </span>
                 </div>
               </div>
               <span className="text-[10px] font-bold font-mono bg-emerald-400/10 border border-emerald-400/20 text-emerald-400 px-2.5 py-1 rounded-lg">
@@ -96,33 +134,38 @@ export const InquireModal: React.FC = () => {
 
           {/* Tier Selector Pills */}
           <div className="mb-5">
-            <label className="text-xs font-mono uppercase text-zinc-400 block mb-2">Select License Tier</label>
-            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
-              {tiersList.map((t) => (
+            <label className="text-xs font-mono uppercase text-zinc-400 block mb-2">
+              Select License Tier
+            </label>
+            <div
+              className={`grid gap-1.5 sm:gap-2 ${availableTiers.length === 1 ? "grid-cols-1" : "grid-cols-3"}`}
+            >
+              {availableTiers.map((t) => (
                 <button
                   key={t}
-                  onClick={() => setSelectedTier(t)}
+                  onClick={() => setSelectedTier(t as LicensingTierName)}
                   className={`py-2 px-1 sm:px-3 rounded-xl text-[10px] sm:text-xs font-medium transition-all flex items-center justify-center text-center leading-tight whitespace-nowrap ${
                     currentTier === t
-                      ? 'bg-white text-zinc-950 font-semibold shadow'
-                      : 'bg-zinc-950 text-zinc-400 hover:text-white border border-zinc-800'
+                      ? "bg-white text-zinc-950 font-semibold shadow"
+                      : "bg-zinc-950 text-zinc-400 hover:text-white border border-zinc-800"
                   }`}
                 >
-                  {t.replace(' (Tagged)', '').replace(' Contract', '')}
+                  {t.replace(" (Tagged)", "").replace(" Contract", "")}
                 </button>
               ))}
             </div>
           </div>
 
-          {currentTier === 'Free (Tagged)' ? (
+          {currentTier === "Free (Tagged)" ? (
             <div className="space-y-4">
               <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-xl">
                 <p className="text-sm text-zinc-300 mb-2">
-                  The Free (Tagged) version is for non-profit use only. 
-                  Must credit: (Prod. DZVN).
+                  The Free (Tagged) version is for non-profit use only. Must
+                  credit: (Prod. DZVN).
                 </p>
                 <p className="text-xs text-zinc-500">
-                  For streaming platforms (Spotify, Apple Music) or profitable usage, please select a paid lease.
+                  For streaming platforms (Spotify, Apple Music) or profitable
+                  usage, please select a paid lease.
                 </p>
               </div>
               {beat ? (
@@ -145,7 +188,9 @@ export const InquireModal: React.FC = () => {
               {/* Pre-filled Message Display */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-mono uppercase text-zinc-400">Formatted Studio Inquiry</label>
+                  <label className="text-xs font-mono uppercase text-zinc-400">
+                    Formatted Studio Inquiry
+                  </label>
                   {copied && (
                     <span className="text-[11px] font-mono text-emerald-400 flex items-center gap-1 animate-fade-in">
                       <Check className="w-3 h-3" /> Copied to Clipboard
@@ -193,8 +238,12 @@ export const InquireModal: React.FC = () => {
                   onClick={handleCopy}
                   className="w-full py-2.5 px-4 bg-zinc-950/60 hover:bg-zinc-900 text-zinc-400 hover:text-zinc-200 font-mono text-xs rounded-xl transition-all flex items-center justify-center gap-1.5"
                 >
-                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                  {copied ? 'Copied to Clipboard!' : 'Copy Text Only'}
+                  {copied ? (
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  ) : (
+                    <Copy className="w-3.5 h-3.5" />
+                  )}
+                  {copied ? "Copied to Clipboard!" : "Copy Text Only"}
                 </button>
               </div>
             </>

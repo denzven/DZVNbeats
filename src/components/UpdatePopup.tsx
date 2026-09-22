@@ -1,6 +1,6 @@
-import React from 'react';
-import { useRegisterSW } from 'virtual:pwa-register/react';
-import { RefreshCcw, X } from 'lucide-react';
+import React from "react";
+import { useRegisterSW } from "virtual:pwa-register/react";
+import { RefreshCcw, X } from "lucide-react";
 
 export const UpdatePopup: React.FC = () => {
   const {
@@ -16,7 +16,7 @@ export const UpdatePopup: React.FC = () => {
       }
     },
     onRegisterError(error: any) {
-      console.log('SW registration error', error);
+      console.log("SW registration error", error);
     },
   });
 

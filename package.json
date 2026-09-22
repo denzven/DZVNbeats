@@ -4,12 +4,15 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "generate-manifest": "node generate-manifest.js",
+    "generate-manifest": "echo \"[DZVNbeats] Generating Catalog Manifest...\" && node generate-manifest.js",
+    "predev": "npm run generate-manifest",
+    "dev": "echo \"[DZVNbeats] Starting Development Server...\" && vite --clearScreen false",
     "prebuild": "npm run generate-manifest",
-    "dev": "npm run generate-manifest && vite",
-    "build": "npm run prebuild && tsc && vite build",
+    "build": "echo \"[DZVNbeats] Compiling TypeScript...\" && tsc && echo \"[DZVNbeats] Building Production Bundle...\" && vite build --clearScreen false",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "preview": "echo \"[DZVNbeats] Previewing Production Build...\" && vite preview"
   },
   "dependencies": {
     "clsx": "^2.1.0",

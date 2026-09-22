@@ -37,7 +37,7 @@ A personal portfolio and beat store website built with React, Vite, and Tailwind
    npm run dev
    ```
 
-   This will start the application locally, accessible in your browser. 
+   This will start the application locally, accessible in your browser.
 
 3. **Build for production:**
 
