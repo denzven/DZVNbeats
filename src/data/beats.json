@@ -28,5 +28,19 @@
     "status": "Available",
     "beatType": "Free",
     "isTagged": true
+  },
+  {
+    "id": "beat-3-dzvn-green-canopy-100bpm-gmaj-ava-free-tagged",
+    "title": "Green Canopy",
+    "filename": "DZVN_Green_Canopy_100BPM_Gmaj_ava_free_Tagged.wav",
+    "url": "./beats/DZVN_Green_Canopy_100BPM_Gmaj_ava_free_Tagged.wav",
+    "coverArt": "./covers/beat-3-dzvn-green-canopy-100bpm-gmaj-ava-free-tagged-cover.jpg",
+    "bpm": 100,
+    "key": "G major",
+    "tags": [],
+    "price": 0,
+    "status": "Available",
+    "beatType": "Free",
+    "isTagged": true
   }
 ]
