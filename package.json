@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "generate-manifest": "echo \"[DZVNbeats] Generating Catalog Manifest...\" && node generate-manifest.js",
-    "predev": "npm run generate-manifest",
+    "generate-contracts": "echo \"[DZVNbeats] Generating Contract PDFs...\" && node scripts/generate-contracts.js",
+    "predev": "npm run generate-manifest && npm run generate-contracts",
     "dev": "echo \"[DZVNbeats] Starting Development Server...\" && vite --clearScreen false",
-    "prebuild": "npm run generate-manifest",
+    "prebuild": "npm run generate-manifest && npm run generate-contracts",
     "build": "echo \"[DZVNbeats] Compiling TypeScript...\" && tsc && echo \"[DZVNbeats] Building Production Bundle...\" && vite build --clearScreen false",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
@@ -17,6 +18,7 @@
   "dependencies": {
     "clsx": "^2.1.0",
     "framer-motion": "^11.0.8",
+    "jspdf": "^4.2.1",
     "lucide-react": "^0.359.0",
     "music-metadata": "^11.15.0",
     "react": "^18.3.1",

@@ -28,6 +28,9 @@ export interface LicensingTier {
   stemFiles: boolean;
   popular?: boolean;
   description: string;
+  recoupmentThreshold?: string;
+  royaltySplit?: string;
+  creditRequirement?: string;
 }
 
 export interface InquirePayload {

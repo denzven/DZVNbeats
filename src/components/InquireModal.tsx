@@ -10,6 +10,7 @@ import {
   MessageSquare,
   Music,
   Download,
+  FileText,
 } from "lucide-react";
 import { useAudioStore } from "../store/useAudioStore";
 import { LicensingTierName } from "../types/beat";
@@ -43,8 +44,8 @@ export const InquireModal: React.FC = () => {
       : availableTiers[0];
 
   const formattedMessage = beat
-    ? `Hey DZVN, I am interested in purchasing the ${currentTier} for the beat: ${beat.title}.`
-    : `Hey DZVN, I am interested in purchasing a ${currentTier}. Let's discuss details.`;
+    ? `Hey DZVN, I am interested in licensing the ${currentTier} for the beat: "${beat.title}". Let's finalize the license agreement.`
+    : `Hey DZVN, I am interested in acquiring a ${currentTier}. Let's discuss details and license terms.`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(formattedMessage);
@@ -64,7 +65,7 @@ export const InquireModal: React.FC = () => {
 
   const handleEmailClick = () => {
     const subject = beat
-      ? encodeURIComponent(`Beat Lease Inquiry: ${beat.title} (${currentTier})`)
+      ? encodeURIComponent(`Beat License Inquiry: ${beat.title} (${currentTier})`)
       : encodeURIComponent(`${currentTier} Inquiry`);
     const body = encodeURIComponent(formattedMessage);
     window.location.href = `mailto:dzvn.beats@gmail.com?subject=${subject}&body=${body}`;
@@ -158,25 +159,39 @@ export const InquireModal: React.FC = () => {
 
           {currentTier === "Free (Tagged)" ? (
             <div className="space-y-4">
-              <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-xl">
-                <p className="text-sm text-zinc-300 mb-2">
-                  The Free (Tagged) version is for non-profit use only. Must
-                  credit: (Prod. DZVN).
+              <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-xl space-y-1.5">
+                <p className="text-xs text-zinc-300">
+                  <strong className="text-white">Format:</strong> High-Quality Studio WAV (with voice tags).
                 </p>
-                <p className="text-xs text-zinc-500">
-                  For streaming platforms (Spotify, Apple Music) or profitable
-                  usage, please select a paid lease.
+                <p className="text-xs text-zinc-300">
+                  <strong className="text-white">Usage:</strong> Strictly non-commercial &amp; non-monetized use only. Zero revenue permitted.
+                </p>
+                <p className="text-xs text-emerald-400 font-medium">
+                  Mandatory Credit: (Prod. by DZVN) in title &amp; description.
+                </p>
+                <p className="text-[11px] text-zinc-500 pt-1">
+                  For Spotify, Apple Music, or monetization, select the ₹200 Basic Lease.
                 </p>
               </div>
               {beat ? (
-                <a
-                  href={beat.url}
-                  download={beat.filename}
-                  className="w-full py-3 px-4 bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95"
-                >
-                  <Download className="w-4 h-4 text-zinc-950" />
-                  Download Free Tagged Beat
-                </a>
+                <div className="space-y-2">
+                  <a
+                    href={beat.url}
+                    download={beat.filename}
+                    className="w-full py-3 px-4 bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95"
+                  >
+                    <Download className="w-4 h-4 text-zinc-950" />
+                    Download Free Tagged WAV
+                  </a>
+                  <a
+                    href="/contracts/DZVNbeats_Free_Tagged_License.pdf"
+                    download
+                    className="w-full py-2 px-3 text-center text-[11px] font-mono text-zinc-400 hover:text-white hover:bg-zinc-800/60 rounded-xl border border-zinc-800 transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <FileText className="w-3.5 h-3.5 text-zinc-400" />
+                    Download Free License Agreement (PDF)
+                  </a>
+                </div>
               ) : (
                 <div className="w-full py-3 px-4 bg-zinc-900 text-zinc-500 font-bold text-xs uppercase tracking-wider rounded-xl text-center border border-zinc-800">
                   Select a beat from the catalog to download
@@ -185,6 +200,25 @@ export const InquireModal: React.FC = () => {
             </div>
           ) : (
             <>
+              {/* Selected Tier Summary Badge */}
+              <div className="mb-4 p-3 bg-zinc-950/80 border border-zinc-800 rounded-xl text-xs flex items-center justify-between">
+                <div>
+                  <span className="font-bold text-white block">
+                    {currentTier === "Basic Lease"
+                      ? "Basic Lease (₹200)"
+                      : "Exclusive Contract (₹1,000)"}
+                  </span>
+                  <span className="text-[11px] text-zinc-400">
+                    {currentTier === "Basic Lease"
+                      ? "Untagged WAV • Up to 50,000 Streams • 1 Monetized Video"
+                      : "Untagged WAV + Stems • Beat Retired • Recoup 100% of first ₹2,000"}
+                  </span>
+                </div>
+                <span className="font-mono font-bold text-xs px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-200">
+                  {currentTier === "Basic Lease" ? "₹200" : "₹1,000"}
+                </span>
+              </div>
+
               {/* Pre-filled Message Display */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-1.5">
@@ -245,6 +279,21 @@ export const InquireModal: React.FC = () => {
                   )}
                   {copied ? "Copied to Clipboard!" : "Copy Text Only"}
                 </button>
+
+                <div className="pt-2 text-center">
+                  <a
+                    href={
+                      currentTier === "Basic Lease"
+                        ? "/contracts/DZVNbeats_Basic_Lease_Agreement.pdf"
+                        : "/contracts/DZVNbeats_Exclusive_Contract.pdf"
+                    }
+                    download
+                    className="inline-flex items-center gap-1.5 text-[11px] font-mono text-zinc-400 hover:text-zinc-200 underline decoration-zinc-700 underline-offset-4"
+                  >
+                    <FileText className="w-3.5 h-3.5 text-zinc-400" />
+                    Download Standard {currentTier} Agreement (PDF)
+                  </a>
+                </div>
               </div>
             </>
           )}

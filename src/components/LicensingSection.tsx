@@ -6,6 +6,7 @@ import {
   FileAudio,
   Disc,
   Crown,
+  Download,
 } from "lucide-react";
 import { LicensingTier } from "../types/beat";
 import { useAudioStore } from "../store/useAudioStore";
@@ -15,38 +16,43 @@ export const licensingTiers: LicensingTier[] = [
     id: "tier-free",
     name: "Free (Tagged)",
     price: 0,
-    format: "320kbps MP3 (Tagged)",
-    streamLimit: "Non-profit use only",
-    distributionLimit: "0 Copies",
+    format: "High-Quality Master WAV (Tagged)",
+    streamLimit: "Non-profit / Demo use only (0 revenue)",
+    distributionLimit: "0 Commercial Copies",
     radioRights: false,
     stemFiles: false,
+    creditRequirement: "Mandatory in title and description: (Prod. by DZVN)",
     description:
-      "Perfect for listening, writing, and non-commercial YouTube/SoundCloud uploads. Must credit (Prod. by DZVN).",
+      "Uncompressed Studio WAV with periodic voice tags. Perfect for writing, rehearsals, demos, and non-commercial social videos. Zero monetization permitted.",
   },
   {
     id: "tier-basic",
     name: "Basic Lease",
     price: 200,
     popular: true,
-    format: "High Quality WAV (Untagged)",
+    format: "High-Quality Untagged WAV",
     streamLimit: "Up to 50,000 Streams",
-    distributionLimit: "1,000 Copies",
+    distributionLimit: "Up to 500 Physical Copies / 1 Monetized Video",
     radioRights: false,
     stemFiles: false,
+    creditRequirement: "Mandatory in title and metadata: (Prod. by DZVN)",
     description:
-      "Great for independent artists releasing singles on Spotify/Apple Music.",
+      "The first stepping stone for serious independent artists. Untagged studio WAV for Spotify, Apple Music, and 1 monetized YouTube video release.",
   },
   {
     id: "tier-exclusive",
     name: "Exclusive Contract",
     price: 1000,
-    format: "WAV + Track Stems (Untagged)",
-    streamLimit: "UNLIMITED Streams",
-    distributionLimit: "UNLIMITED Copies",
+    format: "Untagged WAV + Track Stems (Multi-tracks)",
+    streamLimit: "UNLIMITED Commercial Streams",
+    distributionLimit: "UNLIMITED Physical & Digital Copies",
     radioRights: true,
     stemFiles: true,
+    recoupmentThreshold: "Artist keeps 100% of first ₹2,000 earned",
+    royaltySplit: "20% Net Master Royalty after ₹2,000 + 50% Publishing",
+    creditRequirement: "Mandatory in title and metadata: (Prod. by DZVN)",
     description:
-      "Full ownership rights. Track removed immediately from catalog upon purchase.",
+      "Full ownership rights. Beat retired from catalog. Features the Culture-First Recoupment Guarantee: keep 100% of your first ₹2,000 earned before any royalty split kicks in.",
   },
 ];
 
@@ -180,6 +186,27 @@ export const LicensingSection: React.FC = () => {
                       Radio Airplay &amp; Commercial Broadcasting
                     </span>
                   </div>
+
+                  {tier.recoupmentThreshold && (
+                    <div className="flex items-start gap-2.5 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300">
+                      <Sparkles className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="block text-emerald-200 font-semibold">
+                          Culture-First Recoupment:
+                        </strong>
+                        <span className="text-[11px] text-emerald-300/90 leading-tight block">
+                          Keep 100% of your first ₹2,000 revenue. 20% net royalty only applies if song earns &gt; ₹2,000.
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-start gap-2.5 text-[11px] text-zinc-400">
+                    <Check className="w-4 h-4 text-zinc-500 flex-shrink-0 mt-0.5" />
+                    <span>
+                      <strong>Credit:</strong> {tier.creditRequirement}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -215,6 +242,21 @@ export const LicensingSection: React.FC = () => {
                     ? "Unavailable for this Beat"
                     : `Inquire ${tier.name}`}
                 </button>
+
+                <a
+                  href={
+                    tier.id === "tier-free"
+                      ? "/contracts/DZVNbeats_Free_Tagged_License.pdf"
+                      : tier.id === "tier-basic"
+                      ? "/contracts/DZVNbeats_Basic_Lease_Agreement.pdf"
+                      : "/contracts/DZVNbeats_Exclusive_Contract.pdf"
+                  }
+                  download
+                  className="w-full mt-2.5 py-2 px-3 rounded-xl text-center text-[11px] font-mono text-zinc-400 hover:text-white hover:bg-zinc-800/60 border border-zinc-800/80 transition-all flex items-center justify-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  Download Agreement (PDF)
+                </a>
               </div>
             </div>
           ))}
