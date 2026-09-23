@@ -1,0 +1,21 @@
+# Robots.txt for DZVNbeats (https://denzven.github.io/DZVNbeats/)
+# Directives for search engines and web crawlers
+
+User-agent: *
+Allow: /
+
+# Allow crawling of audio landing pages, covers, and contracts
+Allow: /beat/
+Allow: /beats/
+Allow: /covers/
+Allow: /contracts/
+Allow: /licensing/
+Allow: /privacy/
+Allow: /terms/
+Allow: /refund/
+
+# Disallow direct indexing of internal JSON data dumps
+Disallow: /src/data/*.json
+
+# Sitemap Location
+Sitemap: https://denzven.github.io/DZVNbeats/sitemap.xml

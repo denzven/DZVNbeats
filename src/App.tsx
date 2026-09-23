@@ -10,6 +10,9 @@ import { Header } from "./components/Header";
 import { HomePage } from "./pages/HomePage";
 import { BeatsPage } from "./pages/BeatsPage";
 import { LicensingLegalPage } from "./pages/LicensingLegalPage";
+import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
+import { TermsOfServicePage } from "./pages/TermsOfServicePage";
+import { RefundPolicyPage } from "./pages/RefundPolicyPage";
 import { BottomPlayer } from "./components/BottomPlayer";
 import { InquireModal } from "./components/InquireModal";
 import { Footer } from "./components/Footer";
@@ -76,6 +79,9 @@ const AppContent: React.FC<{ beats: Beat[] }> = ({ beats }) => {
             <Route path="/" element={<HomePage beats={beats} />} />
             <Route path="/beats" element={<BeatsPage beats={beats} />} />
             <Route path="/licensing" element={<LicensingLegalPage />} />
+            <Route path="/privacy" element={<PrivacyPolicyPage />} />
+            <Route path="/terms" element={<TermsOfServicePage />} />
+            <Route path="/refund" element={<RefundPolicyPage />} />
             <Route path="*" element={<HomePage beats={beats} />} />
           </Routes>
         </AnimatePresence>

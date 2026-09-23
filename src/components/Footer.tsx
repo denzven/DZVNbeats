@@ -15,7 +15,7 @@ export const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
           {/* Brand Info */}
-          <div className="md:col-span-2">
+          <div className="md:col-span-1 lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center overflow-hidden">
                 <img
@@ -28,21 +28,22 @@ export const Footer: React.FC = () => {
                 DZVNbeats
               </span>
             </div>
-            <p className="text-xs text-zinc-400 leading-relaxed max-w-md">
+            <p className="text-xs text-zinc-400 leading-relaxed max-w-sm">
               Premium, hard-hitting type beats for upcoming artists. Download
               free tagged instrumentals instantly or grab affordable leases for
               your next hit.
             </p>
-            <p className="text-[11px] font-mono text-zinc-500 mt-4">
-              © {new Date().getFullYear()} DZVNbeats. All rights reserved.
-              Serverless PWA.
+            <p className="text-[11px] font-mono text-zinc-500 mt-4 leading-relaxed">
+              © {new Date().getFullYear()} DZVNbeats • Denzven Vadakkan
+              <br />
+              Mumbai, Maharashtra, India.
             </p>
           </div>
 
           {/* Quick Navigation */}
           <div>
             <h4 className="text-xs font-mono uppercase text-zinc-200 font-semibold mb-3">
-              Navigation
+              Catalog
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
@@ -63,7 +64,48 @@ export const Footer: React.FC = () => {
                   to="/licensing"
                   className="hover:text-white transition-colors"
                 >
-                  Licensing &amp; Legal Terms
+                  Licensing Tiers &amp; Pricing
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Legal & Policies */}
+          <div>
+            <h4 className="text-xs font-mono uppercase text-zinc-200 font-semibold mb-3">
+              Legal &amp; Policies
+            </h4>
+            <ul className="space-y-2 text-xs">
+              <li>
+                <Link
+                  to="/licensing"
+                  className="hover:text-white transition-colors"
+                >
+                  Licensing Agreements (PDF)
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/privacy"
+                  className="hover:text-white transition-colors"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/terms"
+                  className="hover:text-white transition-colors"
+                >
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/refund"
+                  className="hover:text-white transition-colors"
+                >
+                  Refund &amp; Cancellation
                 </Link>
               </li>
             </ul>

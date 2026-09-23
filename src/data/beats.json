@@ -1,5 +1,27 @@
 [
   {
+    "id": "champagne",
+    "title": "Champagne",
+    "filename": "DZVN_Champagne_132BPM_Emin_ava_free_Tagged.wav",
+    "url": "./beats/DZVN_Champagne_132BPM_Emin_ava_free_Tagged.wav",
+    "coverArt": "./covers/champagne-cover.jpg",
+    "bpm": 132,
+    "key": "E minor",
+    "tags": [
+      "Jersey Club"
+    ],
+    "price": 0,
+    "duration": "1:45",
+    "status": "Available",
+    "beatType": "Free",
+    "isTagged": true,
+    "legacyIds": [
+      "beat-1-dzvn-champagne-132bpm-emin-ava-free-tagged",
+      "dzvn-champagne"
+    ],
+    "createdAt": "2026-09-23"
+  },
+  {
     "id": "green-canopy",
     "title": "Green Canopy",
     "filename": "DZVN_Green_Canopy_100BPM_Gmaj_ava_free_Tagged.wav",
@@ -14,7 +36,7 @@
     "beatType": "Free",
     "isTagged": true,
     "legacyIds": [
-      "beat-1-dzvn-green-canopy-100bpm-gmaj-ava-free-tagged",
+      "beat-3-dzvn-green-canopy-100bpm-gmaj-ava-free-tagged",
       "dzvn-green-canopy"
     ],
     "createdAt": "2026-09-22"
@@ -36,7 +58,7 @@
     "beatType": "Free",
     "isTagged": true,
     "legacyIds": [
-      "beat-2-dzvn-akbaar-100bpm-gmjr-ava-free-tagged",
+      "beat-4-dzvn-akbaar-100bpm-gmjr-ava-free-tagged",
       "dzvn-akbaar"
     ],
     "createdAt": "2026-09-21"
@@ -56,7 +78,7 @@
     "beatType": "Free",
     "isTagged": true,
     "legacyIds": [
-      "beat-3-dzvn-flute-case-131bpm-fsharpmin-ava-free-tagged",
+      "beat-5-dzvn-flute-case-131bpm-fsharpmin-ava-free-tagged",
       "dzvn-flute-case"
     ],
     "createdAt": "2026-09-21"

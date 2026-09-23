@@ -20,6 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { licensingTiers } from "../components/LicensingSection";
+import { LegalNav } from "../components/LegalNav";
 import { useAudioStore } from "../store/useAudioStore";
 import { generateCustomContractPdf } from "../utils/generateCustomContractPdf";
 import { resolveUrl } from "../utils/url";
@@ -92,6 +93,9 @@ export const LicensingLegalPage: React.FC = () => {
       className="pt-28 pb-32 bg-zinc-950 text-zinc-100 min-h-screen"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Tab Navigation */}
+        <LegalNav />
+
         {/* Page Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-400 mb-4">
