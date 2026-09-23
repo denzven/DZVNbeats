@@ -23,19 +23,18 @@ interface HomePageProps {
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
-  const { openInquireModal, openShareModal, playTrack, currentTrack, isPlaying } =
+  const { openInquireModal, openShareModal, currentTrack, isPlaying } =
     useAudioStore();
   const { setIsHovering, setText } = useCursorStore();
   const navigate = useNavigate();
   const location = useLocation();
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
-  const hasAutoPlayed = React.useRef(false);
 
   const handleShare = (beat: Beat) => {
     openShareModal(beat);
   };
 
-  // Deep linking support on HomePage
+  // Deep linking redirect to catalog
   useEffect(() => {
     const routerParams = new URLSearchParams(location.search);
     const windowParams = new URLSearchParams(window.location.search);
@@ -53,23 +52,10 @@ export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
       hashParams.get("play") ||
       hashParams.get("beat");
 
-    if (targetBeatId && !hasAutoPlayed.current) {
-      const beatToPlay = beats.find(
-        (b) =>
-          b.id === targetBeatId ||
-          b.id.toLowerCase() === targetBeatId.toLowerCase() ||
-          b.legacyIds?.includes(targetBeatId) ||
-          b.legacyIds?.some((l) => l.toLowerCase() === targetBeatId.toLowerCase()) ||
-          b.filename.toLowerCase().includes(targetBeatId.toLowerCase()) ||
-          b.title.toLowerCase() === targetBeatId.toLowerCase(),
-      );
-
-      if (beatToPlay) {
-        hasAutoPlayed.current = true;
-        setTimeout(() => playTrack(beatToPlay), 200);
-      }
+    if (targetBeatId) {
+      navigate(`/beats?play=${encodeURIComponent(targetBeatId)}`, { replace: true });
     }
-  }, [location.search, beats, playTrack]);
+  }, [location.search, navigate]);
 
   const featuredBeats = beats.slice(0, 3);
 
@@ -210,53 +196,29 @@ export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
             {featuredBeats.map((beat) => (
               <div
                 key={beat.id}
-                className={`group relative z-10 hover:!z-50 flex-none w-[80vw] sm:w-[320px] flex flex-col justify-between bg-zinc-900/40 hover:bg-zinc-800/60 border border-zinc-900 hover:border-zinc-600 hover:shadow-xl rounded-2xl p-4 transition-all duration-300 snap-center ${
-                  currentTrack?.id === beat.id && isPlaying ? "z-40" : ""
+                className={`group relative z-10 hover:!z-40 flex-none w-[85vw] sm:w-[340px] flex flex-col justify-between bg-zinc-900/30 hover:bg-zinc-900/60 border border-zinc-800/80 hover:border-zinc-700 hover:shadow-2xl rounded-3xl p-5 transition-all duration-300 snap-center ${
+                  currentTrack?.id === beat.id && isPlaying ? "z-30 ring-1 ring-zinc-400/40" : ""
                 }`}
               >
                 <div>
-                  <div className="flex justify-between items-center mb-3">
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className={`w-2 h-2 rounded-full ${beat.status === "Sold" ? "bg-red-500" : "bg-emerald-500 animate-pulse-subtle"}`}
-                      ></span>
-                      <span
-                        className={`text-[10px] font-mono uppercase tracking-wider font-semibold ${beat.status === "Sold" ? "text-red-400" : "text-zinc-400"}`}
-                      >
-                        {beat.status === "Sold"
-                          ? "Sold Exclusive"
-                          : "Available"}
-                      </span>
-                    </div>
-                    <span className="bg-zinc-900 text-white font-mono text-[10px] font-bold px-2.5 py-1 rounded border border-zinc-700 uppercase tracking-widest">
-                      {beat.status === "Sold"
-                        ? "SOLD OUT"
-                        : beat.beatType === "Exclusive"
-                          ? "EXCLUSIVE"
-                          : beat.price === 0
-                            ? "FREE"
-                            : `$${beat.price || 29}`}
-                    </span>
-                  </div>
-
-                  {/* Cover Art Frame with Vinyl */}
-                  <div className="relative aspect-square w-full rounded-xl bg-zinc-950 mb-4 group-hover:shadow-2xl">
-                    {/* Blurred Background Glow for Theming */}
+                  {/* Cover Art Frame with Floating Glass Badges */}
+                  <div className="relative aspect-square w-full rounded-2xl bg-zinc-950 mb-5 group-hover:shadow-2xl transition-all overflow-hidden">
+                    {/* Blurred Ambient Glow */}
                     {beat.coverArt && (
                       <div
-                        className="absolute inset-0 z-0 opacity-30 group-hover:opacity-70 transition-opacity duration-500 rounded-xl"
+                        className="absolute inset-0 z-0 opacity-20 group-hover:opacity-40 transition-opacity duration-500 rounded-2xl pointer-events-none"
                         style={{
                           backgroundImage: `url(${resolveUrl(beat.coverArt)})`,
                           backgroundSize: "cover",
                           backgroundPosition: "center",
-                          filter: "blur(25px) saturate(1.5)",
+                          filter: "blur(20px) saturate(1.5)",
                         }}
                       />
                     )}
 
-                    {/* Cover Art Itself */}
+                    {/* Cover Art Image */}
                     <div
-                      className="absolute inset-0 z-20 rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800/50 cursor-pointer transition-all duration-500 group-hover:scale-105 group-hover:shadow-2xl"
+                      className="absolute inset-0 z-20 rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800/60 cursor-pointer transition-transform duration-500 group-hover:scale-[1.02]"
                       onMouseEnter={() => {
                         setIsHovering(true);
                         setText("VIEW");
@@ -281,9 +243,44 @@ export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
                         </div>
                       )}
 
+                      {/* Floating Glass Status Badge (Top-Left) */}
+                      <div className="absolute top-3 left-3 z-30 pointer-events-none">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-950/75 backdrop-blur-md border border-zinc-800/80 text-[10px] font-mono uppercase tracking-wider shadow-sm">
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              beat.status === "Sold"
+                                ? "bg-red-500"
+                                : "bg-emerald-400 animate-pulse-subtle"
+                            }`}
+                          />
+                          <span
+                            className={
+                              beat.status === "Sold"
+                                ? "text-red-400 font-semibold"
+                                : "text-zinc-300"
+                            }
+                          >
+                            {beat.status === "Sold" ? "Sold" : "Available"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Floating Glass Price Badge (Top-Right) */}
+                      <div className="absolute top-3 right-3 z-30 pointer-events-none">
+                        <span className="px-2.5 py-1 rounded-full bg-zinc-950/75 backdrop-blur-md border border-zinc-800/80 text-[11px] font-mono font-bold text-white shadow-sm tracking-wide">
+                          {beat.status === "Sold"
+                            ? "SOLD"
+                            : beat.beatType === "Exclusive"
+                              ? "EXCLUSIVE"
+                              : beat.price === 0
+                                ? "FREE"
+                                : `$${beat.price || 29}`}
+                        </span>
+                      </div>
+
                       {/* View Button Overlay */}
-                      <div className="absolute inset-0 transition-opacity flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <button className="w-14 h-14 rounded-full bg-white text-zinc-950 flex items-center justify-center shadow-xl transition-transform active:scale-95 hover:scale-110">
+                      <div className="absolute inset-0 transition-opacity flex items-center justify-center bg-zinc-950/30 backdrop-blur-[2px] opacity-0 group-hover:opacity-100">
+                        <button className="w-14 h-14 rounded-full bg-white text-zinc-950 flex items-center justify-center shadow-2xl transition-transform active:scale-95 hover:scale-110">
                           <ArrowRight className="w-6 h-6 text-zinc-950" />
                         </button>
                       </div>
@@ -292,67 +289,70 @@ export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
 
                   {/* Track Details */}
                   <div className="mb-4">
-                    <h3 className="font-bold text-lg text-white group-hover:text-zinc-200 truncate">
-                      {beat.title}
-                    </h3>
-                    <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 mt-1 flex-wrap">
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <h3 className="font-bold text-base sm:text-lg text-white group-hover:text-zinc-200 truncate leading-snug">
+                        {beat.title}
+                      </h3>
+                      {beat.tags && beat.tags[0] && (
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-800/60 text-zinc-400 border border-zinc-700/40 flex-shrink-0">
+                          {beat.tags[0]}
+                        </span>
+                      )}
+                    </div>
+                    {/* Streamlined Single-Line Metadata Row */}
+                    <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
                       {beat.bpm && (
-                        <span className="bg-zinc-950 border border-zinc-800 px-2 py-0.5 rounded text-zinc-300">
+                        <span className="text-zinc-300 font-medium">
                           {beat.bpm} BPM
                         </span>
                       )}
-                      {beat.key && (
-                        <span className="bg-zinc-950 border border-zinc-800 px-2 py-0.5 rounded text-zinc-400">
-                          {beat.key}
-                        </span>
-                      )}
-                      {beat.duration && (
-                        <span className="bg-zinc-950 border border-zinc-800 px-2 py-0.5 rounded text-zinc-400">
-                          {beat.duration}
-                        </span>
-                      )}
+                      {beat.key && <span>• {beat.key}</span>}
+                      {beat.duration && <span>• {beat.duration}</span>}
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-auto pt-3 border-t border-zinc-800/60 flex items-center justify-between relative z-20">
+                {/* Actions Footer */}
+                <div className="mt-auto pt-3.5 border-t border-zinc-800/60 flex items-center justify-between relative z-20">
                   <button
                     onClick={() =>
                       navigate("/beats", { state: { playBeatId: beat.id } })
                     }
-                    className="py-1.5 text-xs font-semibold text-zinc-400 hover:text-white flex items-center gap-1"
+                    className="py-1.5 text-xs font-semibold text-zinc-400 hover:text-white flex items-center gap-1.5 transition-colors"
                   >
                     <Music className="w-3.5 h-3.5 fill-current" />
-                    View Catalog
+                    <span>Catalog</span>
                   </button>
 
                   <div className="flex items-center gap-2">
                     <MagneticButton
                       onClick={() => handleShare(beat)}
-                      className="p-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-800 transition-all flex items-center justify-center"
-                      title="Share beat (Includes cover art & auto-play link)"
+                      className="w-8 h-8 rounded-xl bg-zinc-800/60 hover:bg-zinc-700 text-zinc-400 hover:text-white border border-zinc-800 transition-all flex items-center justify-center"
+                      title="Share beat"
                     >
-                      <Share2 className="w-4 h-4" />
+                      <Share2 className="w-3.5 h-3.5" />
                     </MagneticButton>
 
                     <MagneticButton
                       onClick={() =>
                         beat.status !== "Sold" && openInquireModal(beat)
                       }
-                      className={`px-3 py-1.5 font-bold text-xs rounded-xl shadow transition-all flex items-center gap-1 ${
+                      className={`px-3.5 py-1.5 font-bold text-xs rounded-xl shadow transition-all flex items-center gap-1.5 ${
                         beat.status === "Sold"
                           ? "bg-zinc-800 text-zinc-500 cursor-not-allowed opacity-70"
-                          : "bg-zinc-100 hover:bg-white text-zinc-950"
+                          : "bg-white hover:bg-zinc-200 text-zinc-950 active:scale-95"
                       }`}
                     >
                       <Download
                         className={`w-3.5 h-3.5 ${beat.status === "Sold" ? "text-zinc-500" : "text-zinc-950"}`}
                       />
-                      {beat.status === "Sold"
-                        ? "Unavailable"
-                        : beat.beatType === "Exclusive"
-                          ? "Purchase"
-                          : "Download"}
+                      <span>
+                        {beat.status === "Sold"
+                          ? "Sold"
+                          : beat.beatType === "Exclusive"
+                            ? "License"
+                            : "Download"}
+                      </span>
                     </MagneticButton>
                   </div>
                 </div>

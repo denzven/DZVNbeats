@@ -122,13 +122,19 @@ export function generateBeatPages() {
     <script>
       (function() {
         var path = window.location.pathname;
-        var base = path.replace(/\\/beat\\/[^\\/]+\\/?$/, "");
-        if (!base.endsWith("/")) base += "/";
+        var parts = path.split("/").filter(Boolean);
+        var base = "/";
+        if (
+          window.location.hostname.endsWith("github.io") ||
+          (parts[0] && parts[0].toLowerCase() === "dzvnbeats")
+        ) {
+          base = "/" + (parts[0] || "DZVNbeats") + "/";
+        }
         var target = base + "#/beats?play=" + encodeURIComponent("${beat.id}");
         window.location.replace(target);
       })();
     </script>
-    <meta http-equiv="refresh" content="0; url=../../#/beats?play=${encodeURIComponent(beat.id)}" />
+    <meta http-equiv="refresh" content="0; url=${PRODUCTION_BASE}#/beats?play=${encodeURIComponent(beat.id)}" />
     <style>
       body {
         margin: 0;
@@ -206,15 +212,21 @@ export function generateBeatPages() {
       />
       <div class="title">${escapeHtml(beat.title)}</div>
       <div class="meta">${beat.bpm ? beat.bpm + " BPM" : "Studio Track"}${beat.key ? " • " + escapeHtml(beat.key) : ""}</div>
-      <a id="redirect-link" class="play-btn" href="../../#/beats?play=${encodeURIComponent(beat.id)}">
+      <a id="redirect-link" class="play-btn" href="${PRODUCTION_BASE}#/beats?play=${encodeURIComponent(beat.id)}">
         ▶ Play on DZVNbeats
       </a>
       <div class="note">Redirecting to studio player...</div>
     </div>
     <script>
       var path = window.location.pathname;
-      var base = path.replace(/\\/beat\\/[^\\/]+\\/?$/, "");
-      if (!base.endsWith("/")) base += "/";
+      var parts = path.split("/").filter(Boolean);
+      var base = "/";
+      if (
+        window.location.hostname.endsWith("github.io") ||
+        (parts[0] && parts[0].toLowerCase() === "dzvnbeats")
+      ) {
+        base = "/" + (parts[0] || "DZVNbeats") + "/";
+      }
       document.getElementById("redirect-link").href = base + "#/beats?play=" + encodeURIComponent("${beat.id}");
     </script>
   </body>

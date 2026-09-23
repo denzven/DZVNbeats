@@ -62,13 +62,19 @@
     <script>
       (function() {
         var path = window.location.pathname;
-        var base = path.replace(/\/beat\/[^\/]+\/?$/, "");
-        if (!base.endsWith("/")) base += "/";
+        var parts = path.split("/").filter(Boolean);
+        var base = "/";
+        if (
+          window.location.hostname.endsWith("github.io") ||
+          (parts[0] && parts[0].toLowerCase() === "dzvnbeats")
+        ) {
+          base = "/" + (parts[0] || "DZVNbeats") + "/";
+        }
         var target = base + "#/beats?play=" + encodeURIComponent("green-canopy");
         window.location.replace(target);
       })();
     </script>
-    <meta http-equiv="refresh" content="0; url=../../#/beats?play=green-canopy" />
+    <meta http-equiv="refresh" content="0; url=/DZVNbeats/#/beats?play=green-canopy" />
     <style>
       body {
         margin: 0;
@@ -146,15 +152,21 @@
       />
       <div class="title">Green Canopy</div>
       <div class="meta">100 BPM • G major</div>
-      <a id="redirect-link" class="play-btn" href="../../#/beats?play=green-canopy">
+      <a id="redirect-link" class="play-btn" href="/DZVNbeats/#/beats?play=green-canopy">
         ▶ Play on DZVNbeats
       </a>
       <div class="note">Redirecting to studio player...</div>
     </div>
     <script>
       var path = window.location.pathname;
-      var base = path.replace(/\/beat\/[^\/]+\/?$/, "");
-      if (!base.endsWith("/")) base += "/";
+      var parts = path.split("/").filter(Boolean);
+      var base = "/";
+      if (
+        window.location.hostname.endsWith("github.io") ||
+        (parts[0] && parts[0].toLowerCase() === "dzvnbeats")
+      ) {
+        base = "/" + (parts[0] || "DZVNbeats") + "/";
+      }
       document.getElementById("redirect-link").href = base + "#/beats?play=" + encodeURIComponent("green-canopy");
     </script>
   </body>

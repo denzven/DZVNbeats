@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
 import { Header } from "./components/Header";
 import { HomePage } from "./pages/HomePage";
@@ -24,7 +25,7 @@ import { Beat } from "./types/beat";
 
 const AppContent: React.FC<{ beats: Beat[] }> = ({ beats }) => {
   const location = useLocation();
-  const { playTrack } = useAudioStore();
+  const navigate = useNavigate();
   const hasInitializedDeepLink = React.useRef(false);
 
   useEffect(() => {
@@ -50,22 +51,14 @@ const AppContent: React.FC<{ beats: Beat[] }> = ({ beats }) => {
       hashParams.get("beat");
 
     if (targetBeatId) {
-      const beatToPlay = beats.find(
-        (b) =>
-          b.id === targetBeatId ||
-          b.id.toLowerCase() === targetBeatId.toLowerCase() ||
-          b.filename.toLowerCase().includes(targetBeatId.toLowerCase()) ||
-          b.title.toLowerCase() === targetBeatId.toLowerCase(),
-      );
-
-      if (beatToPlay) {
-        hasInitializedDeepLink.current = true;
-        setTimeout(() => {
-          playTrack(beatToPlay);
-        }, 150);
+      hasInitializedDeepLink.current = true;
+      if (location.pathname !== "/beats") {
+        navigate(`/beats?play=${encodeURIComponent(targetBeatId)}`, {
+          replace: true,
+        });
       }
     }
-  }, [beats, location.search, playTrack]);
+  }, [beats, location.search, location.pathname, navigate]);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-zinc-800 selection:text-white">

@@ -25,7 +25,6 @@ export const BottomPlayer: React.FC = () => {
   const synthIntervalRef = useRef<any>(null);
 
   const [usingSynthFallback, setUsingSynthFallback] = useState(false);
-  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
 
   const {
     currentTrack,
@@ -34,6 +33,7 @@ export const BottomPlayer: React.FC = () => {
     isMuted,
     currentTime,
     duration,
+    autoplayBlocked,
     togglePlay,
     pauseTrack,
     nextTrack,
@@ -42,6 +42,7 @@ export const BottomPlayer: React.FC = () => {
     toggleMute,
     setCurrentTime,
     setDuration,
+    setAutoplayBlocked,
     openInquireModal,
     openShareModal,
   } = useAudioStore();

@@ -5,10 +5,52 @@
  */
 
 const PRODUCTION_ORIGIN = "https://denzven.github.io";
-const PRODUCTION_BASE = "/DZVNbeats/";
+const REPO_NAME = "DZVNbeats";
 
 /**
- * Resolves a relative path against Vite's BASE_URL.
+ * Returns the base path for assets and routing.
+ * Ensures "/DZVNbeats/" is used on GitHub Pages or any sub-path deployment,
+ * while cleanly falling back to "/" on root domains or local dev.
+ */
+export const getSiteBasePath = (): string => {
+  if (typeof window === "undefined") {
+    return `/${REPO_NAME}/`;
+  }
+
+  const hostname = window.location.hostname;
+  const pathname = window.location.pathname;
+
+  // GitHub Pages domain (denzven.github.io) or URL already containing /DZVNbeats
+  if (
+    hostname.endsWith("github.io") ||
+    pathname.toLowerCase().includes(`/${REPO_NAME.toLowerCase()}`)
+  ) {
+    return `/${REPO_NAME}/`;
+  }
+
+  // If Vite's base is an explicit absolute path
+  const base = import.meta.env.BASE_URL;
+  if (base && !base.startsWith(".")) {
+    return base.endsWith("/") ? base : `${base}/`;
+  }
+
+  return "/";
+};
+
+/**
+ * Returns the site origin + base path (e.g. "https://denzven.github.io/DZVNbeats/").
+ */
+export const getSiteRootUrl = (): string => {
+  if (typeof window === "undefined") {
+    return `${PRODUCTION_ORIGIN}/${REPO_NAME}/`;
+  }
+  const origin = window.location.origin;
+  const base = getSiteBasePath();
+  return `${origin}${base}`;
+};
+
+/**
+ * Resolves a relative path against the app's base path.
  * Ensures compatibility across local dev ('/') and GitHub Pages ('/DZVNbeats/').
  */
 export const resolveUrl = (path?: string): string => {
@@ -23,43 +65,38 @@ export const resolveUrl = (path?: string): string => {
   }
 
   const clean = path.replace(/^\.\//, "").replace(/^\//, "");
-  const base = import.meta.env.BASE_URL || "/";
-  return base.endsWith("/") ? `${base}${clean}` : `${base}/${clean}`;
+  const base = getSiteBasePath();
+  return `${base}${clean}`;
 };
 
 /**
  * Returns an absolute URL (with protocol and domain) for Open Graph, SEO, and social shares.
+ * Example: https://denzven.github.io/DZVNbeats/covers/akbaar-cover.jpg
  */
 export const getAbsoluteUrl = (path?: string): string => {
-  if (!path) return `${PRODUCTION_ORIGIN}${PRODUCTION_BASE}`;
+  if (!path) return getSiteRootUrl();
   if (path.startsWith("http://") || path.startsWith("https://")) {
     return path;
   }
 
   const clean = path.replace(/^\.\//, "").replace(/^\//, "");
-  const origin =
-    typeof window !== "undefined" && window.location.origin
-      ? window.location.origin
-      : PRODUCTION_ORIGIN;
-  const base = import.meta.env.BASE_URL || "/";
-  const pathWithBase = base.endsWith("/") ? `${base}${clean}` : `${base}/${clean}`;
-
-  return `${origin}${pathWithBase.startsWith("/") ? pathWithBase : `/${pathWithBase}`}`;
+  return `${getSiteRootUrl()}${clean}`;
 };
 
 /**
- * Generates the canonical share link for a specific beat.
- * Points to the pre-rendered SEO page (/beat/<beatId>/) which carries
- * full Open Graph/Twitter meta tags and automatically redirects human visitors to autoplay.
+ * Generates the rich social card share link for a specific beat.
+ * Points to the pre-rendered SEO page (https://denzven.github.io/DZVNbeats/beat/<beatId>/)
+ * which carries full Open Graph/Twitter meta tags and automatically redirects human visitors to autoplay.
  */
 export const getBeatShareUrl = (beatId: string): string => {
-  if (typeof window === "undefined") {
-    return `${PRODUCTION_ORIGIN}${PRODUCTION_BASE}beat/${encodeURIComponent(beatId)}/`;
-  }
+  return `${getSiteRootUrl()}beat/${encodeURIComponent(beatId)}/`;
+};
 
-  const origin = window.location.origin;
-  const base = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
-  return `${origin}${base}/beat/${encodeURIComponent(beatId)}/`;
+/**
+ * Generates a direct HashRouter URL (https://denzven.github.io/DZVNbeats/#/beats?play=<beatId>)
+ */
+export const getDirectBeatUrl = (beatId: string): string => {
+  return `${getSiteRootUrl()}#/beats?play=${encodeURIComponent(beatId)}`;
 };
 
 /**

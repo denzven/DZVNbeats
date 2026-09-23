@@ -22,6 +22,8 @@ interface AudioStoreState {
   currentTime: number;
   /** Total duration of the current track in seconds */
   duration: number;
+  /** Boolean indicating whether browser autoplay policy blocked audio playback without user gesture */
+  autoplayBlocked: boolean;
   /** State holding the beat and tier selected for the Inquire Modal (purchase dialog) */
   inquireModalData: { beat: Beat | null; tier?: LicensingTierName } | null;
   /** State holding the beat currently open in the Share Modal */
@@ -29,7 +31,7 @@ interface AudioStoreState {
 
   // Actions
   setPlaylist: (tracks: Beat[]) => void;
-  playTrack: (track: Beat) => void;
+  playTrack: (track: Beat, options?: { forcePlay?: boolean }) => void;
   togglePlay: () => void;
   pauseTrack: () => void;
   nextTrack: () => void;
@@ -38,6 +40,7 @@ interface AudioStoreState {
   toggleMute: () => void;
   setCurrentTime: (time: number) => void;
   setDuration: (duration: number) => void;
+  setAutoplayBlocked: (blocked: boolean) => void;
   openInquireModal: (beat: Beat | null, tier?: LicensingTierName) => void;
   closeInquireModal: () => void;
   openShareModal: (beat: Beat) => void;
@@ -52,19 +55,26 @@ export const useAudioStore = create<AudioStoreState>((set, get) => ({
   isMuted: false,
   currentTime: 0,
   duration: 0,
+  autoplayBlocked: false,
   inquireModalData: null,
   shareModalBeat: null,
 
   setPlaylist: (tracks) => set({ playlist: tracks }),
 
-  playTrack: (track) => {
+  playTrack: (track, options) => {
     const { currentTrack, isPlaying } = get();
     if (currentTrack?.id === track.id) {
-      set({ isPlaying: !isPlaying });
+      if (options?.forcePlay) {
+        set({ isPlaying: true });
+      } else {
+        set({ isPlaying: !isPlaying });
+      }
     } else {
       set({ currentTrack: track, isPlaying: true, currentTime: 0 });
     }
   },
+
+  setAutoplayBlocked: (blocked) => set({ autoplayBlocked: blocked }),
 
   togglePlay: () => {
     const { currentTrack, isPlaying, playlist } = get();

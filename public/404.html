@@ -6,31 +6,55 @@
     <title>DZVNbeats | Studio Beat Portfolio</title>
     <link rel="icon" type="image/png" href="./favicon.png" />
     <script>
-      // Single Page App redirect for GitHub Pages
-      // If someone accesses /DZVNbeats/beat/<id> or /DZVNbeats/<route>, redirect into the hash router
+      // Single Page App redirect for GitHub Pages (https://denzven.github.io/DZVNbeats/)
+      // If someone accesses /DZVNbeats/beat/<id>, /DZVNbeats/beats, or any direct link, redirect into HashRouter
       (function () {
         var pathname = window.location.pathname;
         var search = window.location.search;
         var hash = window.location.hash;
 
-        // Check if the path targets a beat page: /DZVNbeats/beat/<beatId>
-        var beatMatch = pathname.match(/\/beat\/([^\/]+)/);
-        var base = pathname.replace(/\/beat\/[^\/]+.*$/, "").replace(/\/404\.html$/, "");
-        if (!base.endsWith("/")) base += "/";
+        // Detect repository / base path for GitHub Pages (e.g. /DZVNbeats/)
+        var base = "/";
+        var repoMatch = pathname.match(/^\/([^\/]+)/);
+        if (
+          window.location.hostname.endsWith("github.io") ||
+          (repoMatch && repoMatch[1].toLowerCase() === "dzvnbeats")
+        ) {
+          base = "/" + (repoMatch ? repoMatch[1] : "DZVNbeats") + "/";
+        }
 
+        // Get the route path relative to the base
+        var routePath = pathname;
+        if (routePath.indexOf(base) === 0) {
+          routePath = routePath.slice(base.length);
+        } else if (routePath.startsWith("/")) {
+          routePath = routePath.slice(1);
+        }
+        // Remove trailing 404.html or slashes
+        routePath = routePath.replace(/404\.html$/, "").replace(/\/$/, "");
+
+        // 1. Direct Beat Link: /DZVNbeats/beat/<beatId> or /beat/<beatId>
+        var beatMatch = routePath.match(/^beat\/([^\/\?#]+)/);
         if (beatMatch && beatMatch[1]) {
           var beatId = beatMatch[1];
           window.location.replace(base + "#/beats?play=" + encodeURIComponent(beatId));
           return;
         }
 
-        // Generic route fallback
-        var cleanPath = pathname.replace(base, "").replace(/^\//, "");
-        if (cleanPath) {
-          window.location.replace(base + "#/" + cleanPath + search + hash);
-        } else {
-          window.location.replace(base + search + hash);
+        // 2. Direct Beats Page with query (e.g. /DZVNbeats/beats?play=akbaar)
+        if (routePath === "beats" || routePath.startsWith("beats/")) {
+          window.location.replace(base + "#/beats" + search + hash);
+          return;
         }
+
+        // 3. Other Routes (e.g. /DZVNbeats/licensing)
+        if (routePath) {
+          window.location.replace(base + "#/" + routePath + search + hash);
+          return;
+        }
+
+        // 4. Default fallback to root
+        window.location.replace(base + (search || "") + (hash || ""));
       })();
     </script>
     <style>

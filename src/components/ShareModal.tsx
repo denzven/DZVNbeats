@@ -10,16 +10,20 @@ import {
   Send,
 } from "lucide-react";
 import { useAudioStore } from "../store/useAudioStore";
-import { resolveUrl, getBeatShareUrl } from "../utils/url";
+import { resolveUrl, getBeatShareUrl, getDirectBeatUrl } from "../utils/url";
 
 export const ShareModal: React.FC = () => {
   const { shareModalBeat, closeShareModal } = useAudioStore();
   const [copied, setCopied] = useState(false);
+  const [linkFormat, setLinkFormat] = useState<"social" | "direct">("social");
 
   if (!shareModalBeat) return null;
 
   const beat = shareModalBeat;
-  const shareUrl = getBeatShareUrl(beat.id);
+  const activeShareUrl =
+    linkFormat === "social"
+      ? getBeatShareUrl(beat.id)
+      : getDirectBeatUrl(beat.id);
   const coverUrl = beat.coverArt ? resolveUrl(beat.coverArt) : resolveUrl("banner.png");
 
   const shareText = `🎵 Listen to "${beat.title}" (${beat.bpm ? beat.bpm + " BPM" : "Studio Track"}${
@@ -28,13 +32,13 @@ export const ShareModal: React.FC = () => {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(activeShareUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch (e) {
       // Fallback
       const input = document.createElement("input");
-      input.value = shareUrl;
+      input.value = activeShareUrl;
       document.body.appendChild(input);
       input.select();
       document.execCommand("copy");
@@ -50,7 +54,7 @@ export const ShareModal: React.FC = () => {
         await navigator.share({
           title: `${beat.title} - Type Beat | DZVNbeats`,
           text: shareText,
-          url: shareUrl,
+          url: activeShareUrl,
         });
       } catch (err: any) {
         if (err.name !== "AbortError") {
@@ -64,7 +68,7 @@ export const ShareModal: React.FC = () => {
   };
 
   const handleWhatsAppShare = () => {
-    const text = encodeURIComponent(`${shareText}\n${shareUrl}`);
+    const text = encodeURIComponent(`${shareText}\n${activeShareUrl}`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank", "noopener,noreferrer");
   };
 
@@ -74,7 +78,7 @@ export const ShareModal: React.FC = () => {
         beat.key ? " • " + beat.key : ""
       }) by @DZVNbeats:`,
     );
-    const url = encodeURIComponent(shareUrl);
+    const url = encodeURIComponent(activeShareUrl);
     window.open(
       `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
       "_blank",
@@ -170,10 +174,10 @@ export const ShareModal: React.FC = () => {
             </div>
           </div>
 
-          {/* URL Box & 1-Click Copy */}
+          {/* Link Format Toggle & URL Box */}
           <div className="mb-4">
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-mono uppercase text-zinc-400">Direct Share Link</label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-mono uppercase text-zinc-400">Share Link</label>
               {copied && (
                 <span className="text-[11px] font-mono text-emerald-400 flex items-center gap-1">
                   <Check className="w-3 h-3" /> Copied to Clipboard
@@ -181,11 +185,37 @@ export const ShareModal: React.FC = () => {
               )}
             </div>
 
+            {/* Link Format Tabs */}
+            <div className="grid grid-cols-2 p-1 bg-zinc-950 border border-zinc-800 rounded-xl mb-2.5">
+              <button
+                type="button"
+                onClick={() => setLinkFormat("social")}
+                className={`py-1.5 px-2 rounded-lg text-[11px] font-mono transition-all text-center ${
+                  linkFormat === "social"
+                    ? "bg-zinc-800 text-white font-semibold shadow"
+                    : "text-zinc-400 hover:text-zinc-200"
+                }`}
+              >
+                Social Card (Embeds)
+              </button>
+              <button
+                type="button"
+                onClick={() => setLinkFormat("direct")}
+                className={`py-1.5 px-2 rounded-lg text-[11px] font-mono transition-all text-center ${
+                  linkFormat === "direct"
+                    ? "bg-zinc-800 text-white font-semibold shadow"
+                    : "text-zinc-400 hover:text-zinc-200"
+                }`}
+              >
+                Direct Web Link (#)
+              </button>
+            </div>
+
             <div className="flex items-center gap-2">
               <input
                 type="text"
                 readOnly
-                value={shareUrl}
+                value={activeShareUrl}
                 className="w-full py-2.5 px-3 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-zinc-300 font-mono focus:outline-none select-all truncate"
               />
               <button
@@ -209,10 +239,24 @@ export const ShareModal: React.FC = () => {
                 )}
               </button>
             </div>
+            <p className="text-[11px] text-zinc-500 mt-1.5 px-1 font-mono">
+              {linkFormat === "social"
+                ? "Rich social embed with cover artwork, auto-redirecting to playback."
+                : "Direct HashRouter link that jumps straight into the player."}
+            </p>
           </div>
 
           {/* Social Share Buttons */}
           <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => window.open(activeShareUrl, "_blank", "noopener,noreferrer")}
+              className="w-full py-2.5 px-4 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 font-bold text-xs uppercase tracking-wider rounded-xl border border-emerald-500/30 transition-all flex items-center justify-center gap-2 active:scale-95"
+            >
+              <ExternalLink className="w-4 h-4 text-emerald-400" />
+              Test Link in New Tab
+            </button>
+
             {canNativeShare && (
               <button
                 onClick={handleNativeShare}
