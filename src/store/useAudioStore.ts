@@ -24,6 +24,8 @@ interface AudioStoreState {
   duration: number;
   /** State holding the beat and tier selected for the Inquire Modal (purchase dialog) */
   inquireModalData: { beat: Beat | null; tier?: LicensingTierName } | null;
+  /** State holding the beat currently open in the Share Modal */
+  shareModalBeat: Beat | null;
 
   // Actions
   setPlaylist: (tracks: Beat[]) => void;
@@ -38,6 +40,8 @@ interface AudioStoreState {
   setDuration: (duration: number) => void;
   openInquireModal: (beat: Beat | null, tier?: LicensingTierName) => void;
   closeInquireModal: () => void;
+  openShareModal: (beat: Beat) => void;
+  closeShareModal: () => void;
 }
 
 export const useAudioStore = create<AudioStoreState>((set, get) => ({
@@ -49,6 +53,7 @@ export const useAudioStore = create<AudioStoreState>((set, get) => ({
   currentTime: 0,
   duration: 0,
   inquireModalData: null,
+  shareModalBeat: null,
 
   setPlaylist: (tracks) => set({ playlist: tracks }),
 
@@ -109,8 +114,21 @@ export const useAudioStore = create<AudioStoreState>((set, get) => ({
 
   setDuration: (duration) => set({ duration }),
 
-  openInquireModal: (beat, tier = "Free (Tagged)") =>
-    set({ inquireModalData: { beat, tier } }),
+  openInquireModal: (beat, tier) => {
+    let resolvedTier: LicensingTierName = "Free (Tagged)";
+    if (tier) {
+      resolvedTier = tier;
+    } else if (beat?.beatType === "Exclusive") {
+      resolvedTier = "Exclusive Contract";
+    } else if (beat?.beatType === "Standard" && beat.price > 0) {
+      resolvedTier = "Basic Lease";
+    }
+    set({ inquireModalData: { beat, tier: resolvedTier } });
+  },
 
   closeInquireModal: () => set({ inquireModalData: null }),
+
+  openShareModal: (beat) => set({ shareModalBeat: beat }),
+
+  closeShareModal: () => set({ shareModalBeat: null }),
 }));

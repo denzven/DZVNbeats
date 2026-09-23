@@ -12,6 +12,8 @@ export interface Beat {
   status?: "Available" | "Sold";
   beatType?: "Free" | "Standard" | "Exclusive";
   isTagged?: boolean;
+  legacyIds?: string[];
+  createdAt?: string;
 }
 
 export type LicensingTierName =

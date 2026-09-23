@@ -17,11 +17,55 @@ import { useAudioStore } from "./store/useAudioStore";
 import { CustomCursor } from "./components/CustomCursor";
 import { AnimatePresence } from "framer-motion";
 
+import { ShareModal } from "./components/ShareModal";
+
 import beatsData from "./data/beats.json";
 import { Beat } from "./types/beat";
 
 const AppContent: React.FC<{ beats: Beat[] }> = ({ beats }) => {
   const location = useLocation();
+  const { playTrack } = useAudioStore();
+  const hasInitializedDeepLink = React.useRef(false);
+
+  useEffect(() => {
+    if (!beats.length || hasInitializedDeepLink.current) return;
+
+    // Check window.location.search (before hash)
+    const windowParams = new URLSearchParams(window.location.search);
+    // Check location.search (after hash)
+    const routerParams = new URLSearchParams(location.search);
+    // Check hash query if any
+    let hashQuery = "";
+    if (window.location.hash.includes("?")) {
+      hashQuery = window.location.hash.split("?")[1];
+    }
+    const hashParams = new URLSearchParams(hashQuery);
+
+    const targetBeatId =
+      routerParams.get("play") ||
+      routerParams.get("beat") ||
+      windowParams.get("play") ||
+      windowParams.get("beat") ||
+      hashParams.get("play") ||
+      hashParams.get("beat");
+
+    if (targetBeatId) {
+      const beatToPlay = beats.find(
+        (b) =>
+          b.id === targetBeatId ||
+          b.id.toLowerCase() === targetBeatId.toLowerCase() ||
+          b.filename.toLowerCase().includes(targetBeatId.toLowerCase()) ||
+          b.title.toLowerCase() === targetBeatId.toLowerCase(),
+      );
+
+      if (beatToPlay) {
+        hasInitializedDeepLink.current = true;
+        setTimeout(() => {
+          playTrack(beatToPlay);
+        }, 150);
+      }
+    }
+  }, [beats, location.search, playTrack]);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-zinc-800 selection:text-white">
@@ -47,9 +91,10 @@ const AppContent: React.FC<{ beats: Beat[] }> = ({ beats }) => {
       {/* Footer */}
       <Footer />
 
-      {/* Persistent Bottom Audio Player & Lead Modal across all pages */}
+      {/* Persistent Bottom Audio Player, Modals & Alerts across all pages */}
       <BottomPlayer />
       <InquireModal />
+      <ShareModal />
       <UpdatePopup />
     </div>
   );

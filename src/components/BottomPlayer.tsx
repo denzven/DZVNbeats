@@ -8,34 +8,14 @@ import {
   VolumeX,
   Disc,
   Download,
+  Share2,
 } from "lucide-react";
 import { useAudioStore } from "../store/useAudioStore";
-
-// Helper to resolve URL using Vite BASE_URL (e.g. '/' in dev or '/DZVNbeats/' in production)
-const resolveAudioUrl = (rawUrl: string): string => {
-  if (!rawUrl) return "";
-  if (
-    rawUrl.startsWith("http://") ||
-    rawUrl.startsWith("https://") ||
-    rawUrl.startsWith("blob:")
-  ) {
-    return rawUrl;
-  }
-  const cleanPath = rawUrl.replace(/^\.\//, "").replace(/^\//, "");
-  const baseUrl = import.meta.env.BASE_URL || "/";
-  const finalBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
-  return `${finalBase}${cleanPath}`;
-};
+import { resolveUrl } from "../utils/url";
 
 /**
  * BottomPlayer is the persistent audio player component that sits at the bottom of the screen.
  * It strictly synchronizes its internal HTMLAudioElement with the global Zustand `useAudioStore`.
- * 
- * Key Features:
- * - Listens to `isPlaying` and `currentTrack` changes to automatically trigger play/pause on the `<audio>` element.
- * - Handles `AbortError` seamlessly if tracks are skipped rapidly.
- * - **Synth Fallback Mechanism**: If the `<audio>` element fails to load the actual file (e.g. 404), it falls back
- *   to generating a procedural Web Audio API Synthesizer (Oscillator + Gain Node) to demonstrate playback functionality.
  */
 export const BottomPlayer: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -45,6 +25,7 @@ export const BottomPlayer: React.FC = () => {
   const synthIntervalRef = useRef<any>(null);
 
   const [usingSynthFallback, setUsingSynthFallback] = useState(false);
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
 
   const {
     currentTrack,
@@ -62,9 +43,19 @@ export const BottomPlayer: React.FC = () => {
     setCurrentTime,
     setDuration,
     openInquireModal,
+    openShareModal,
   } = useAudioStore();
 
-  const activeAudioUrl = currentTrack ? resolveAudioUrl(currentTrack.url) : "";
+  const activeAudioUrl = currentTrack ? resolveUrl(currentTrack.url) : "";
+
+  // Dynamic document title update based on track & playback
+  useEffect(() => {
+    if (currentTrack) {
+      document.title = `${isPlaying ? "▶" : "⏸"} ${currentTrack.title} | DZVNbeats`;
+    } else {
+      document.title = "DZVNbeats | Premium Type Beats & Rap Beats For Sale";
+    }
+  }, [currentTrack, isPlaying]);
 
   // Clean up Web Audio synth
   const stopSynth = () => {
@@ -159,10 +150,33 @@ export const BottomPlayer: React.FC = () => {
         playPromise
           .then(() => {
             stopSynth();
+            setAutoplayBlocked(false);
           })
           .catch((err) => {
             if (err.name === "AbortError") {
               // The play request was interrupted by a new request or a pause call.
+              return;
+            }
+            if (err.name === "NotAllowedError") {
+              // Autoplay policy prevented playback without prior user gesture
+              console.log("Autoplay restricted by browser policy. Waiting for user gesture.");
+              setAutoplayBlocked(true);
+
+              const unlockAutoplay = () => {
+                if (audioRef.current) {
+                  audioRef.current
+                    .play()
+                    .then(() => {
+                      setAutoplayBlocked(false);
+                    })
+                    .catch(() => {});
+                }
+                window.removeEventListener("pointerdown", unlockAutoplay);
+                window.removeEventListener("keydown", unlockAutoplay);
+              };
+
+              window.addEventListener("pointerdown", unlockAutoplay, { once: true });
+              window.addEventListener("keydown", unlockAutoplay, { once: true });
               return;
             }
             console.warn(
@@ -175,6 +189,7 @@ export const BottomPlayer: React.FC = () => {
     } else {
       audio.pause();
       stopSynth();
+      setAutoplayBlocked(false);
     }
 
     return () => {
@@ -255,6 +270,24 @@ export const BottomPlayer: React.FC = () => {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-zinc-950/95 md:bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-900 md:border-zinc-800 shadow-2xl md:px-4 md:py-3 px-2 py-2">
+      {/* Autoplay blocked banner (iOS/Chrome gesture required) */}
+      {autoplayBlocked && currentTrack && (
+        <div
+          onClick={() => {
+            if (audioRef.current) {
+              audioRef.current
+                .play()
+                .then(() => setAutoplayBlocked(false))
+                .catch(() => {});
+            }
+          }}
+          className="mb-2 -mx-2 -mt-2 md:-mx-4 md:-mt-3 py-2 px-4 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg animate-pulse transition-all"
+        >
+          <Play className="w-3.5 h-3.5 fill-zinc-950" />
+          <span>Tap anywhere to start listening to "{currentTrack.title}"</span>
+        </div>
+      )}
+
       {/* Hidden Native HTML5 Audio Element */}
       <audio
         ref={audioRef}
@@ -285,7 +318,7 @@ export const BottomPlayer: React.FC = () => {
           <div className="relative w-10 h-10 md:w-11 md:h-11 rounded-md md:rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center flex-shrink-0 overflow-hidden">
             {currentTrack.coverArt ? (
               <img
-                src={resolveAudioUrl(currentTrack.coverArt)}
+                src={resolveUrl(currentTrack.coverArt)}
                 alt={currentTrack.title}
                 className="w-full h-full object-cover"
               />
@@ -339,13 +372,22 @@ export const BottomPlayer: React.FC = () => {
         </div>
 
         {/* Mobile Controls (Right) */}
-        <div className="flex md:hidden items-center gap-4 pr-2">
+        <div className="flex md:hidden items-center gap-3 pr-2">
+          <button
+            onClick={() => currentTrack && openShareModal(currentTrack)}
+            aria-label="Share"
+            title="Share beat"
+            className="text-zinc-400 hover:text-white transition-colors p-1"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
           <button
             onClick={() => openInquireModal(currentTrack)}
             aria-label="Download"
-            className="text-zinc-400 hover:text-white transition-colors"
+            title="Download options"
+            className="text-zinc-400 hover:text-white transition-colors p-1"
           >
-            <Download className="w-5 h-5" />
+            <Download className="w-4 h-4" />
           </button>
           <button
             onClick={togglePlay}
@@ -407,7 +449,7 @@ export const BottomPlayer: React.FC = () => {
         </div>
 
         {/* Right Volume & Quick Inquire (Desktop) */}
-        <div className="hidden md:flex items-center justify-end gap-4 w-1/4">
+        <div className="hidden md:flex items-center justify-end gap-3 w-1/4">
           <div className="flex items-center gap-2">
             <button
               onClick={toggleMute}
@@ -429,6 +471,14 @@ export const BottomPlayer: React.FC = () => {
               className="w-20 h-1.5 bg-zinc-800 accent-white rounded-lg cursor-pointer"
             />
           </div>
+
+          <button
+            onClick={() => currentTrack && openShareModal(currentTrack)}
+            title="Share beat (Includes cover art & auto-play link)"
+            className="p-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-800 rounded-lg transition-all"
+          >
+            <Share2 className="w-3.5 h-3.5" />
+          </button>
 
           <button
             onClick={() => openInquireModal(currentTrack)}

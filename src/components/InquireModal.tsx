@@ -11,9 +11,11 @@ import {
   Music,
   Download,
   FileText,
+  Loader2,
 } from "lucide-react";
 import { useAudioStore } from "../store/useAudioStore";
 import { LicensingTierName } from "../types/beat";
+import { resolveUrl, triggerDirectDownload } from "../utils/url";
 
 const tiersList: LicensingTierName[] = [
   "Free (Tagged)",
@@ -24,6 +26,8 @@ const tiersList: LicensingTierName[] = [
 export const InquireModal: React.FC = () => {
   const { inquireModalData, closeInquireModal } = useAudioStore();
   const [copied, setCopied] = useState(false);
+  const [isDownloadingAudio, setIsDownloadingAudio] = useState(false);
+  const [audioDownloadSuccess, setAudioDownloadSuccess] = useState(false);
   const [selectedTier, setSelectedTier] = useState<LicensingTierName | null>(
     null,
   );
@@ -69,6 +73,19 @@ export const InquireModal: React.FC = () => {
       : encodeURIComponent(`${currentTier} Inquiry`);
     const body = encodeURIComponent(formattedMessage);
     window.location.href = `mailto:dzvn.beats@gmail.com?subject=${subject}&body=${body}`;
+  };
+
+  const handleAudioDownload = async () => {
+    if (!beat) return;
+    setIsDownloadingAudio(true);
+    await triggerDirectDownload(beat.url, beat.filename);
+    setIsDownloadingAudio(false);
+    setAudioDownloadSuccess(true);
+    setTimeout(() => setAudioDownloadSuccess(false), 3500);
+  };
+
+  const handlePdfDownload = async (contractPath: string, filename: string) => {
+    await triggerDirectDownload(resolveUrl(contractPath), filename);
   };
 
   return (
@@ -127,8 +144,14 @@ export const InquireModal: React.FC = () => {
                   </span>
                 </div>
               </div>
-              <span className="text-[10px] font-bold font-mono bg-emerald-400/10 border border-emerald-400/20 text-emerald-400 px-2.5 py-1 rounded-lg">
-                FREE (TAGGED)
+              <span className="text-[10px] font-bold font-mono bg-zinc-800 text-zinc-300 px-2.5 py-1 rounded-lg border border-zinc-700">
+                {beat.status === "Sold"
+                  ? "SOLD OUT"
+                  : beat.beatType === "Exclusive"
+                    ? "EXCLUSIVE"
+                    : beat.price === 0
+                      ? "FREE (TAGGED)"
+                      : `STANDARD • ₹${beat.price}`}
               </span>
             </div>
           )}
@@ -175,22 +198,40 @@ export const InquireModal: React.FC = () => {
               </div>
               {beat ? (
                 <div className="space-y-2">
-                  <a
-                    href={beat.url}
-                    download={beat.filename}
-                    className="w-full py-3 px-4 bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95"
+                  <button
+                    onClick={handleAudioDownload}
+                    disabled={isDownloadingAudio}
+                    className="w-full py-3 px-4 bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95 disabled:opacity-75"
                   >
-                    <Download className="w-4 h-4 text-zinc-950" />
-                    Download Free Tagged WAV
-                  </a>
-                  <a
-                    href="/contracts/DZVNbeats_Free_Tagged_License.pdf"
-                    download
+                    {isDownloadingAudio ? (
+                      <>
+                        <Loader2 className="w-4 h-4 text-zinc-950 animate-spin" />
+                        Downloading Studio WAV...
+                      </>
+                    ) : audioDownloadSuccess ? (
+                      <>
+                        <Check className="w-4 h-4 text-emerald-600" />
+                        Downloaded to Device!
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4 text-zinc-950" />
+                        Download Free Tagged WAV
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() =>
+                      handlePdfDownload(
+                        "contracts/DZVNbeats_Free_Tagged_License.pdf",
+                        "DZVNbeats_Free_Tagged_License.pdf",
+                      )
+                    }
                     className="w-full py-2 px-3 text-center text-[11px] font-mono text-zinc-400 hover:text-white hover:bg-zinc-800/60 rounded-xl border border-zinc-800 transition-all flex items-center justify-center gap-1.5"
                   >
                     <FileText className="w-3.5 h-3.5 text-zinc-400" />
                     Download Free License Agreement (PDF)
-                  </a>
+                  </button>
                 </div>
               ) : (
                 <div className="w-full py-3 px-4 bg-zinc-900 text-zinc-500 font-bold text-xs uppercase tracking-wider rounded-xl text-center border border-zinc-800">
@@ -281,18 +322,22 @@ export const InquireModal: React.FC = () => {
                 </button>
 
                 <div className="pt-2 text-center">
-                  <a
-                    href={
-                      currentTier === "Basic Lease"
-                        ? "/contracts/DZVNbeats_Basic_Lease_Agreement.pdf"
-                        : "/contracts/DZVNbeats_Exclusive_Contract.pdf"
+                  <button
+                    onClick={() =>
+                      handlePdfDownload(
+                        currentTier === "Basic Lease"
+                          ? "contracts/DZVNbeats_Basic_Lease_Agreement.pdf"
+                          : "contracts/DZVNbeats_Exclusive_Contract.pdf",
+                        currentTier === "Basic Lease"
+                          ? "DZVNbeats_Basic_Lease_Agreement.pdf"
+                          : "DZVNbeats_Exclusive_Contract.pdf",
+                      )
                     }
-                    download
                     className="inline-flex items-center gap-1.5 text-[11px] font-mono text-zinc-400 hover:text-zinc-200 underline decoration-zinc-700 underline-offset-4"
                   >
                     <FileText className="w-3.5 h-3.5 text-zinc-400" />
                     Download Standard {currentTier} Agreement (PDF)
-                  </a>
+                  </button>
                 </div>
               </div>
             </>

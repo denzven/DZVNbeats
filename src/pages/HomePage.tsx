@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   ShieldCheck,
   ArrowRight,
@@ -11,38 +11,65 @@ import {
   Youtube,
   Download,
   Share2,
-  Check,
 } from "lucide-react";
 import { useAudioStore } from "../store/useAudioStore";
 import { Beat } from "../types/beat";
 import { MagneticButton } from "../components/MagneticButton";
 import { useCursorStore } from "../store/useCursorStore";
+import { resolveUrl } from "../utils/url";
 
 interface HomePageProps {
   beats: Beat[];
 }
 
-const resolveUrl = (path?: string) => {
-  if (!path) return "";
-  if (path.startsWith("http://") || path.startsWith("https://")) return path;
-  const clean = path.replace(/^\.\//, "").replace(/^\//, "");
-  const base = import.meta.env.BASE_URL || "/";
-  return base.endsWith("/") ? `${base}${clean}` : `${base}/${clean}`;
-};
-
 export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
-  const { openInquireModal, currentTrack, isPlaying } = useAudioStore();
+  const { openInquireModal, openShareModal, playTrack, currentTrack, isPlaying } =
+    useAudioStore();
   const { setIsHovering, setText } = useCursorStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const hasAutoPlayed = React.useRef(false);
 
-  const handleShare = (beatId: string) => {
-    const url = `${window.location.origin}${window.location.pathname}#/beats?play=${beatId}`;
-    navigator.clipboard.writeText(url);
-    setCopiedId(beatId);
-    setTimeout(() => setCopiedId(null), 2000);
+  const handleShare = (beat: Beat) => {
+    openShareModal(beat);
   };
+
+  // Deep linking support on HomePage
+  useEffect(() => {
+    const routerParams = new URLSearchParams(location.search);
+    const windowParams = new URLSearchParams(window.location.search);
+    let hashQuery = "";
+    if (window.location.hash.includes("?")) {
+      hashQuery = window.location.hash.split("?")[1];
+    }
+    const hashParams = new URLSearchParams(hashQuery);
+
+    const targetBeatId =
+      routerParams.get("play") ||
+      routerParams.get("beat") ||
+      windowParams.get("play") ||
+      windowParams.get("beat") ||
+      hashParams.get("play") ||
+      hashParams.get("beat");
+
+    if (targetBeatId && !hasAutoPlayed.current) {
+      const beatToPlay = beats.find(
+        (b) =>
+          b.id === targetBeatId ||
+          b.id.toLowerCase() === targetBeatId.toLowerCase() ||
+          b.legacyIds?.includes(targetBeatId) ||
+          b.legacyIds?.some((l) => l.toLowerCase() === targetBeatId.toLowerCase()) ||
+          b.filename.toLowerCase().includes(targetBeatId.toLowerCase()) ||
+          b.title.toLowerCase() === targetBeatId.toLowerCase(),
+      );
+
+      if (beatToPlay) {
+        hasAutoPlayed.current = true;
+        setTimeout(() => playTrack(beatToPlay), 200);
+      }
+    }
+  }, [location.search, beats, playTrack]);
 
   const featuredBeats = beats.slice(0, 3);
 
@@ -279,6 +306,11 @@ export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
                           {beat.key}
                         </span>
                       )}
+                      {beat.duration && (
+                        <span className="bg-zinc-950 border border-zinc-800 px-2 py-0.5 rounded text-zinc-400">
+                          {beat.duration}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -296,15 +328,11 @@ export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
 
                   <div className="flex items-center gap-2">
                     <MagneticButton
-                      onClick={() => handleShare(beat.id)}
+                      onClick={() => handleShare(beat)}
                       className="p-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-800 transition-all flex items-center justify-center"
-                      title="Share link"
+                      title="Share beat (Includes cover art & auto-play link)"
                     >
-                      {copiedId === beat.id ? (
-                        <Check className="w-4 h-4 text-emerald-400" />
-                      ) : (
-                        <Share2 className="w-4 h-4" />
-                      )}
+                      <Share2 className="w-4 h-4" />
                     </MagneticButton>
 
                     <MagneticButton

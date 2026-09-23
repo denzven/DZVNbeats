@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DZVNbeats | Studio Beat Portfolio</title>
+    <link rel="icon" type="image/png" href="./favicon.png" />
+    <script>
+      // Single Page App redirect for GitHub Pages
+      // If someone accesses /DZVNbeats/beat/<id> or /DZVNbeats/<route>, redirect into the hash router
+      (function () {
+        var pathname = window.location.pathname;
+        var search = window.location.search;
+        var hash = window.location.hash;
+
+        // Check if the path targets a beat page: /DZVNbeats/beat/<beatId>
+        var beatMatch = pathname.match(/\/beat\/([^\/]+)/);
+        var base = pathname.replace(/\/beat\/[^\/]+.*$/, "").replace(/\/404\.html$/, "");
+        if (!base.endsWith("/")) base += "/";
+
+        if (beatMatch && beatMatch[1]) {
+          var beatId = beatMatch[1];
+          window.location.replace(base + "#/beats?play=" + encodeURIComponent(beatId));
+          return;
+        }
+
+        // Generic route fallback
+        var cleanPath = pathname.replace(base, "").replace(/^\//, "");
+        if (cleanPath) {
+          window.location.replace(base + "#/" + cleanPath + search + hash);
+        } else {
+          window.location.replace(base + search + hash);
+        }
+      })();
+    </script>
+    <style>
+      body {
+        margin: 0;
+        background: #09090b;
+        color: #f4f4f5;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        text-align: center;
+      }
+      .loader {
+        width: 32px;
+        height: 32px;
+        border: 3px solid #27272a;
+        border-top-color: #fafafa;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 16px;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div class="loader"></div>
+      <p>Redirecting to DZVNbeats...</p>
+    </div>
+  </body>
+</html>

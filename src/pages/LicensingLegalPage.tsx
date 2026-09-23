@@ -22,6 +22,7 @@ import {
 import { licensingTiers } from "../components/LicensingSection";
 import { useAudioStore } from "../store/useAudioStore";
 import { generateCustomContractPdf } from "../utils/generateCustomContractPdf";
+import { resolveUrl } from "../utils/url";
 
 export const LicensingLegalPage: React.FC = () => {
   const { openInquireModal } = useAudioStore();
@@ -293,10 +294,10 @@ export const LicensingLegalPage: React.FC = () => {
                   <a
                     href={
                       tier.id === "tier-free"
-                        ? "/contracts/DZVNbeats_Free_Tagged_License.pdf"
+                        ? resolveUrl("contracts/DZVNbeats_Free_Tagged_License.pdf")
                         : tier.id === "tier-basic"
-                        ? "/contracts/DZVNbeats_Basic_Lease_Agreement.pdf"
-                        : "/contracts/DZVNbeats_Exclusive_Contract.pdf"
+                        ? resolveUrl("contracts/DZVNbeats_Basic_Lease_Agreement.pdf")
+                        : resolveUrl("contracts/DZVNbeats_Exclusive_Contract.pdf")
                     }
                     download
                     className="w-full py-2 px-3 rounded-xl text-center text-[11px] font-mono text-zinc-400 hover:text-white hover:bg-zinc-800/60 border border-zinc-800/80 transition-all flex items-center justify-center gap-1.5"
@@ -338,7 +339,7 @@ export const LicensingLegalPage: React.FC = () => {
           {/* Quick PDF Download Links Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
             <a
-              href="/contracts/DZVNbeats_Free_Tagged_License.pdf"
+              href={resolveUrl("contracts/DZVNbeats_Free_Tagged_License.pdf")}
               download
               className="p-5 bg-zinc-950/70 border border-zinc-800/80 hover:border-zinc-700 rounded-2xl group transition-all flex flex-col justify-between"
             >
@@ -361,7 +362,7 @@ export const LicensingLegalPage: React.FC = () => {
             </a>
 
             <a
-              href="/contracts/DZVNbeats_Basic_Lease_Agreement.pdf"
+              href={resolveUrl("contracts/DZVNbeats_Basic_Lease_Agreement.pdf")}
               download
               className="p-5 bg-zinc-950/70 border border-zinc-700/80 hover:border-zinc-500 rounded-2xl group transition-all flex flex-col justify-between relative shadow-lg ring-1 ring-emerald-500/20"
             >
@@ -386,7 +387,7 @@ export const LicensingLegalPage: React.FC = () => {
             </a>
 
             <a
-              href="/contracts/DZVNbeats_Exclusive_Contract.pdf"
+              href={resolveUrl("contracts/DZVNbeats_Exclusive_Contract.pdf")}
               download
               className="p-5 bg-zinc-950/70 border border-amber-500/30 hover:border-amber-400/60 rounded-2xl group transition-all flex flex-col justify-between"
             >

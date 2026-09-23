@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { LicensingTier } from "../types/beat";
 import { useAudioStore } from "../store/useAudioStore";
+import { resolveUrl } from "../utils/url";
 
 export const licensingTiers: LicensingTier[] = [
   {
@@ -246,10 +247,10 @@ export const LicensingSection: React.FC = () => {
                 <a
                   href={
                     tier.id === "tier-free"
-                      ? "/contracts/DZVNbeats_Free_Tagged_License.pdf"
+                      ? resolveUrl("contracts/DZVNbeats_Free_Tagged_License.pdf")
                       : tier.id === "tier-basic"
-                      ? "/contracts/DZVNbeats_Basic_Lease_Agreement.pdf"
-                      : "/contracts/DZVNbeats_Exclusive_Contract.pdf"
+                      ? resolveUrl("contracts/DZVNbeats_Basic_Lease_Agreement.pdf")
+                      : resolveUrl("contracts/DZVNbeats_Exclusive_Contract.pdf")
                   }
                   download
                   className="w-full mt-2.5 py-2 px-3 rounded-xl text-center text-[11px] font-mono text-zinc-400 hover:text-white hover:bg-zinc-800/60 border border-zinc-800/80 transition-all flex items-center justify-center gap-1.5"

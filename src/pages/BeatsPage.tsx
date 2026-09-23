@@ -11,70 +11,87 @@ import {
   Disc,
   Download,
   Share2,
-  Check,
 } from "lucide-react";
 import { Beat } from "../types/beat";
 import { useAudioStore } from "../store/useAudioStore";
 import { MagneticButton } from "../components/MagneticButton";
 import { useCursorStore } from "../store/useCursorStore";
+import { resolveUrl } from "../utils/url";
 
 interface BeatsPageProps {
   beats: Beat[];
 }
 
-const resolveUrl = (path?: string) => {
-  if (!path) return "";
-  if (path.startsWith("http://") || path.startsWith("https://")) return path;
-  const clean = path.replace(/^\.\//, "").replace(/^\//, "");
-  const base = import.meta.env.BASE_URL || "/";
-  return base.endsWith("/") ? `${base}${clean}` : `${base}/${clean}`;
-};
-
 /**
  * BeatsPage is the main catalog view. It displays all the beats pulled from the `beats.json` manifest.
- * 
- * Key Features:
- * - List and Grid view toggles.
- * - Search, Filter by Tag, and BPM Sorting.
- * - **Infinite Scrolling**: Instead of rendering 300+ beats at once, it initializes with 24 beats and uses
- *   an `IntersectionObserver` to progressively load more as the user scrolls down, ensuring optimal performance.
- * - Direct deep linking via URL params (`?play=beatId`).
  */
 export const BeatsPage: React.FC<BeatsPageProps> = ({ beats }) => {
-  const { currentTrack, isPlaying, playTrack, openInquireModal } =
+  const { currentTrack, isPlaying, playTrack, openInquireModal, openShareModal } =
     useAudioStore();
   const { setIsHovering, setText } = useCursorStore();
   const location = useLocation();
   const navigate = useNavigate();
-  const [copiedId, setCopiedId] = useState<string | null>(null);
   const hasPlayedUrl = React.useRef(false);
 
-  const handleShare = (beatId: string) => {
-    const url = `${window.location.origin}${window.location.pathname}#/beats?play=${beatId}`;
-    navigator.clipboard.writeText(url);
-    setCopiedId(beatId);
-    setTimeout(() => setCopiedId(null), 2000);
+  const handleShare = (beat: Beat) => {
+    openShareModal(beat);
   };
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
 
+    // Check location.state
+    let targetBeatId: string | null = null;
     if (location.state && (location.state as any).playBeatId) {
-      const playBeatId = (location.state as any).playBeatId;
-      const beatToPlay = beats.find((b) => b.id === playBeatId);
-      if (beatToPlay) {
-        timeoutId = setTimeout(() => playTrack(beatToPlay), 300);
-      }
+      targetBeatId = (location.state as any).playBeatId;
       navigate(".", { replace: true, state: {} });
     } else {
-      const params = new URLSearchParams(location.search);
-      const playId = params.get("play");
-      if (playId && !hasPlayedUrl.current) {
-        const beatToPlay = beats.find((b) => b.id === playId);
-        if (beatToPlay) {
-          timeoutId = setTimeout(() => playTrack(beatToPlay), 300);
-          hasPlayedUrl.current = true;
+      // Check router params, window.location.search, and hash queries
+      const routerParams = new URLSearchParams(location.search);
+      const windowParams = new URLSearchParams(window.location.search);
+      let hashQuery = "";
+      if (window.location.hash.includes("?")) {
+        hashQuery = window.location.hash.split("?")[1];
+      }
+      const hashParams = new URLSearchParams(hashQuery);
+
+      targetBeatId =
+        routerParams.get("play") ||
+        routerParams.get("beat") ||
+        windowParams.get("play") ||
+        windowParams.get("beat") ||
+        hashParams.get("play") ||
+        hashParams.get("beat");
+    }
+
+    if (targetBeatId && !hasPlayedUrl.current) {
+      const beatToPlay = beats.find(
+        (b) =>
+          b.id === targetBeatId ||
+          b.id.toLowerCase() === targetBeatId.toLowerCase() ||
+          b.legacyIds?.includes(targetBeatId) ||
+          b.legacyIds?.some((l) => l.toLowerCase() === targetBeatId.toLowerCase()) ||
+          b.filename.toLowerCase().includes(targetBeatId.toLowerCase()) ||
+          b.title.toLowerCase() === targetBeatId.toLowerCase(),
+      );
+
+      if (beatToPlay) {
+        hasPlayedUrl.current = true;
+        const beatIdx = beats.findIndex((b) => b.id === beatToPlay.id);
+        if (beatIdx >= 0) {
+          setVisibleCount((prev) => Math.max(prev, beatIdx + 12));
         }
+
+        timeoutId = setTimeout(() => {
+          playTrack(beatToPlay);
+
+          setTimeout(() => {
+            const el = document.getElementById(beatToPlay.id);
+            if (el) {
+              el.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+          }, 350);
+        }, 250);
       }
     }
 
@@ -84,7 +101,7 @@ export const BeatsPage: React.FC<BeatsPageProps> = ({ beats }) => {
   }, [location.state, location.search, beats, playTrack, navigate]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState<string>("All");
-  const [sortBy, setSortBy] = useState<"default" | "bpm-asc" | "bpm-desc">(
+  const [sortBy, setSortBy] = useState<"default" | "bpm-asc" | "bpm-desc" | "title-asc">(
     "default",
   );
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -151,6 +168,7 @@ export const BeatsPage: React.FC<BeatsPageProps> = ({ beats }) => {
       .sort((a, b) => {
         if (sortBy === "bpm-asc") return a.bpm - b.bpm;
         if (sortBy === "bpm-desc") return b.bpm - a.bpm;
+        if (sortBy === "title-asc") return a.title.localeCompare(b.title);
         return 0;
       });
   }, [beats, searchTerm, selectedTag, sortBy]);
@@ -224,7 +242,8 @@ export const BeatsPage: React.FC<BeatsPageProps> = ({ beats }) => {
                 onChange={(e) => setSortBy(e.target.value as any)}
                 className="appearance-none bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300 px-3 py-2 pr-8 rounded-xl focus:outline-none focus:border-zinc-500 cursor-pointer"
               >
-                <option value="default">Sort: Standard</option>
+                <option value="default">Sort: Newest First</option>
+                <option value="title-asc">Title: A → Z</option>
                 <option value="bpm-asc">BPM: Low → High</option>
                 <option value="bpm-desc">BPM: High → Low</option>
               </select>
@@ -302,6 +321,7 @@ export const BeatsPage: React.FC<BeatsPageProps> = ({ beats }) => {
               return (
                 <motion.div
                   key={beat.id}
+                  id={beat.id}
                   variants={itemVariants}
                   className="h-full"
                 >
@@ -473,6 +493,11 @@ export const BeatsPage: React.FC<BeatsPageProps> = ({ beats }) => {
                               {beat.key}
                             </span>
                           )}
+                          {beat.duration && (
+                            <span className="bg-zinc-950 border border-zinc-800 px-2 py-0.5 rounded text-zinc-400">
+                              {beat.duration}
+                            </span>
+                          )}
                         </div>
 
                         {/* Genre Tags */}
@@ -501,15 +526,11 @@ export const BeatsPage: React.FC<BeatsPageProps> = ({ beats }) => {
 
                       <div className="flex items-center gap-2">
                         <MagneticButton
-                          onClick={() => handleShare(beat.id)}
+                          onClick={() => handleShare(beat)}
                           className="p-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-800 transition-all flex items-center justify-center"
-                          title="Share link"
+                          title="Share beat (Includes cover art & auto-play link)"
                         >
-                          {copiedId === beat.id ? (
-                            <Check className="w-4 h-4 text-emerald-400" />
-                          ) : (
-                            <Share2 className="w-4 h-4" />
-                          )}
+                          <Share2 className="w-4 h-4" />
                         </MagneticButton>
 
                         <MagneticButton
@@ -552,9 +573,10 @@ export const BeatsPage: React.FC<BeatsPageProps> = ({ beats }) => {
               return (
                 <div
                   key={beat.id}
+                  id={beat.id}
                   className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl border transition-all ${
                     isCurrent
-                      ? "bg-zinc-800/80 border-zinc-400 shadow-lg"
+                      ? "bg-zinc-800/80 border-zinc-400 shadow-lg ring-1 ring-zinc-400/50"
                       : "bg-zinc-900/40 border-zinc-900 hover:bg-zinc-800/60 hover:border-zinc-600"
                   }`}
                 >
@@ -581,6 +603,7 @@ export const BeatsPage: React.FC<BeatsPageProps> = ({ beats }) => {
                       <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 mt-0.5">
                         <span>{beat.bpm} BPM</span>
                         {beat.key && <span>• {beat.key}</span>}
+                        {beat.duration && <span>• {beat.duration}</span>}
                       </div>
                     </div>
                   </div>
@@ -596,15 +619,11 @@ export const BeatsPage: React.FC<BeatsPageProps> = ({ beats }) => {
                             : `$${beat.price || 29}`}
                     </span>
                     <button
-                      onClick={() => handleShare(beat.id)}
+                      onClick={() => handleShare(beat)}
                       className="p-2 sm:p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-800 transition-all flex items-center justify-center"
-                      title="Share link"
+                      title="Share beat (Includes cover art & auto-play link)"
                     >
-                      {copiedId === beat.id ? (
-                        <Check className="w-4 h-4 text-emerald-400" />
-                      ) : (
-                        <Share2 className="w-4 h-4" />
-                      )}
+                      <Share2 className="w-4 h-4" />
                     </button>
 
                     <button
