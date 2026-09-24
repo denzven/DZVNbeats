@@ -1,5 +1,26 @@
 [
   {
+    "id": "ransom",
+    "title": "Ransom",
+    "filename": "DZVN_Ransom_100BPM_Gmim_ava_free_Tagged.wav",
+    "url": "./beats/DZVN_Ransom_100BPM_Gmim_ava_free_Tagged.wav",
+    "coverArt": "./covers/ransom-cover.jpg",
+    "bpm": 100,
+    "tags": [
+      "Bollywood Hard trap"
+    ],
+    "price": 0,
+    "duration": "2:00",
+    "status": "Available",
+    "beatType": "Free",
+    "isTagged": true,
+    "legacyIds": [
+      "beat-1-dzvn-ransom-100bpm-gmim-ava-free-tagged",
+      "dzvn-ransom"
+    ],
+    "createdAt": "2026-09-24"
+  },
+  {
     "id": "champagne",
     "title": "Champagne",
     "filename": "DZVN_Champagne_132BPM_Emin_ava_free_Tagged.wav",
@@ -16,7 +37,7 @@
     "beatType": "Free",
     "isTagged": true,
     "legacyIds": [
-      "beat-1-dzvn-champagne-132bpm-emin-ava-free-tagged",
+      "beat-3-dzvn-champagne-132bpm-emin-ava-free-tagged",
       "dzvn-champagne"
     ],
     "createdAt": "2026-09-23"
@@ -36,7 +57,7 @@
     "beatType": "Free",
     "isTagged": true,
     "legacyIds": [
-      "beat-3-dzvn-green-canopy-100bpm-gmaj-ava-free-tagged",
+      "beat-4-dzvn-green-canopy-100bpm-gmaj-ava-free-tagged",
       "dzvn-green-canopy"
     ],
     "createdAt": "2026-09-22"
@@ -58,7 +79,7 @@
     "beatType": "Free",
     "isTagged": true,
     "legacyIds": [
-      "beat-4-dzvn-akbaar-100bpm-gmjr-ava-free-tagged",
+      "beat-5-dzvn-akbaar-100bpm-gmjr-ava-free-tagged",
       "dzvn-akbaar"
     ],
     "createdAt": "2026-09-21"
@@ -78,7 +99,7 @@
     "beatType": "Free",
     "isTagged": true,
     "legacyIds": [
-      "beat-5-dzvn-flute-case-131bpm-fsharpmin-ava-free-tagged",
+      "beat-6-dzvn-flute-case-131bpm-fsharpmin-ava-free-tagged",
       "dzvn-flute-case"
     ],
     "createdAt": "2026-09-21"
