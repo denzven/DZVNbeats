@@ -449,6 +449,10 @@ export const BeatsPage: React.FC<BeatsPageProps> = ({ beats }) => {
                                 <img
                                   src={resolveUrl(beat.coverArt)}
                                   alt="label"
+                                  width={100}
+                                  height={100}
+                                  loading="lazy"
+                                  decoding="async"
                                   className="absolute inset-0 w-full h-full object-cover saturate-50"
                                 />
                               ) : (
@@ -476,6 +480,10 @@ export const BeatsPage: React.FC<BeatsPageProps> = ({ beats }) => {
                             <img
                               src={resolveUrl(beat.coverArt)}
                               alt={beat.title}
+                              width={340}
+                              height={340}
+                              loading="lazy"
+                              decoding="async"
                               className="w-full h-full object-cover"
                             />
                           ) : (
@@ -703,6 +711,10 @@ export const BeatsPage: React.FC<BeatsPageProps> = ({ beats }) => {
                         <img
                           src={resolveUrl(beat.coverArt)}
                           alt={beat.title}
+                          width={48}
+                          height={48}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-cover"
                         />
                       )}

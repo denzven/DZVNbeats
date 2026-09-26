@@ -19,7 +19,6 @@ import {
 import { licensingTiers } from "../components/LicensingSection";
 import { LegalNav } from "../components/LegalNav";
 import { useAudioStore } from "../store/useAudioStore";
-import { generateCustomContractPdf } from "../utils/generateCustomContractPdf";
 import { resolveUrl } from "../utils/url";
 
 export const LicensingLegalPage: React.FC = () => {
@@ -487,6 +486,9 @@ export const LicensingLegalPage: React.FC = () => {
                     onClick={async () => {
                       setIsGenerating(true);
                       try {
+                        const { generateCustomContractPdf } = await import(
+                          "../utils/generateCustomContractPdf"
+                        );
                         await generateCustomContractPdf({
                           artistName: customArtistName || "Verified Artist",
                           beatTitle: customBeatTitle || "Studio Beat",

@@ -9,11 +9,34 @@ import {
 import { Header } from "./components/Header";
 import { HomePage } from "./pages/HomePage";
 import { BeatsPage } from "./pages/BeatsPage";
-import { LicensingLegalPage } from "./pages/LicensingLegalPage";
-import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
-import { TermsOfServicePage } from "./pages/TermsOfServicePage";
-import { RefundPolicyPage } from "./pages/RefundPolicyPage";
-import { DistributionAdminPage } from "./pages/DistributionAdminPage";
+
+// Code-split secondary, legal, and studio administration routes
+const LicensingLegalPage = React.lazy(() =>
+  import("./pages/LicensingLegalPage").then((m) => ({
+    default: m.LicensingLegalPage,
+  })),
+);
+const PrivacyPolicyPage = React.lazy(() =>
+  import("./pages/PrivacyPolicyPage").then((m) => ({
+    default: m.PrivacyPolicyPage,
+  })),
+);
+const TermsOfServicePage = React.lazy(() =>
+  import("./pages/TermsOfServicePage").then((m) => ({
+    default: m.TermsOfServicePage,
+  })),
+);
+const RefundPolicyPage = React.lazy(() =>
+  import("./pages/RefundPolicyPage").then((m) => ({
+    default: m.RefundPolicyPage,
+  })),
+);
+const DistributionAdminPage = React.lazy(() =>
+  import("./pages/DistributionAdminPage").then((m) => ({
+    default: m.DistributionAdminPage,
+  })),
+);
+
 import { BottomPlayer } from "./components/BottomPlayer";
 import { InquireModal } from "./components/InquireModal";
 import { Footer } from "./components/Footer";
@@ -80,22 +103,30 @@ const AppContent: React.FC<{ beats: Beat[] }> = ({ beats }) => {
 
       {/* Multi-Page Routes */}
       <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
-        <AnimatePresence
-          mode="wait"
-          onExitComplete={() => window.scrollTo(0, 0)}
+        <React.Suspense
+          fallback={
+            <div className="min-h-[60vh] flex items-center justify-center bg-zinc-950">
+              <div className="w-6 h-6 border-2 border-zinc-800 border-t-white rounded-full animate-spin" />
+            </div>
+          }
         >
-          <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<HomePage beats={beats} />} />
-            <Route path="/beats" element={<BeatsPage beats={beats} />} />
-            <Route path="/licensing" element={<LicensingLegalPage />} />
-            <Route path="/privacy" element={<PrivacyPolicyPage />} />
-            <Route path="/terms" element={<TermsOfServicePage />} />
-            <Route path="/refund" element={<RefundPolicyPage />} />
-            <Route path="/admin" element={<DistributionAdminPage beats={beats} />} />
-            <Route path="/distribute" element={<DistributionAdminPage beats={beats} />} />
-            <Route path="*" element={<HomePage beats={beats} />} />
-          </Routes>
-        </AnimatePresence>
+          <AnimatePresence
+            mode="wait"
+            onExitComplete={() => window.scrollTo(0, 0)}
+          >
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<HomePage beats={beats} />} />
+              <Route path="/beats" element={<BeatsPage beats={beats} />} />
+              <Route path="/licensing" element={<LicensingLegalPage />} />
+              <Route path="/privacy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms" element={<TermsOfServicePage />} />
+              <Route path="/refund" element={<RefundPolicyPage />} />
+              <Route path="/admin" element={<DistributionAdminPage beats={beats} />} />
+              <Route path="/distribute" element={<DistributionAdminPage beats={beats} />} />
+              <Route path="*" element={<HomePage beats={beats} />} />
+            </Routes>
+          </AnimatePresence>
+        </React.Suspense>
       </main>
 
       {/* Footer */}

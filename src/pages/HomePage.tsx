@@ -96,6 +96,8 @@ export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
         <div className="absolute inset-0 z-0 overflow-hidden bg-zinc-950">
           <video
             src={resolveUrl("/banner.mp4")}
+            poster={resolveUrl("/banner.png")}
+            preload="metadata"
             autoPlay
             loop
             muted

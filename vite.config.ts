@@ -586,9 +586,60 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // EXPLICIT REQUIREMENT: Ignore /public/beats/ to prevent heavy audio caching & mobile quota crashes
-        globIgnores: ["**/beats/**", "beats/**"],
+        // EXPLICIT REQUIREMENT: Ignore audio and video from precaching to prevent mobile quota crashes
+        globIgnores: ["**/beats/**", "beats/**", "**/*.mp4", "*.mp4", "**/videos/**"],
         navigateFallbackDenylist: [/^\/beats/],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "google-fonts-stylesheets",
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "google-fonts-webfonts",
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: /\.(?:png|jpg|jpeg|svg|webp|avif)$/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "images-cache",
+              expiration: {
+                maxEntries: 60,
+                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: /\/contracts\/.*\.pdf$/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "contracts-cache",
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+              },
+            },
+          },
+        ],
       },
     }),
   ],
