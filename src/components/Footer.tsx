@@ -109,6 +109,26 @@ export const Footer: React.FC = () => {
                   Refund Policy
                 </Link>
               </li>
+              <li>
+                <a
+                  href={`${import.meta.env.BASE_URL}sitemap.xml`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors"
+                >
+                  XML Sitemap
+                </a>
+              </li>
+              <li>
+                <a
+                  href={`${import.meta.env.BASE_URL}llms.txt`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors"
+                >
+                  LLM Context (llms.txt)
+                </a>
+              </li>
             </ul>
           </div>
 
