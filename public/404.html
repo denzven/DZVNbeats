@@ -47,6 +47,11 @@
           return;
         }
 
+        // Do not redirect static file requests (e.g. .xml, .txt, .pdf, .mp3) into the SPA router
+        if (/\.(xml|txt|pdf|mp4|mp3|wav|png|jpe?g|svg|webp|webmanifest|json)$/i.test(routePath)) {
+          return;
+        }
+
         // 3. Other Routes (e.g. /DZVNbeats/licensing)
         if (routePath) {
           window.location.replace(base + "#/" + routePath + search + hash);

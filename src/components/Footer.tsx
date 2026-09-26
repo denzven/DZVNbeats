@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Instagram, Mail, ArrowUp, Youtube } from "lucide-react";
+import { resolveUrl } from "../utils/url";
 
 export const Footer: React.FC = () => {
   const scrollToTop = () => {
@@ -111,7 +112,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <a
-                  href={`${import.meta.env.BASE_URL}sitemap.xml`}
+                  href={resolveUrl("sitemap.xml")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors"
@@ -121,7 +122,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <a
-                  href={`${import.meta.env.BASE_URL}llms.txt`}
+                  href={resolveUrl("llms.txt")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors"

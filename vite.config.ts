@@ -588,7 +588,14 @@ export default defineConfig({
       workbox: {
         // EXPLICIT REQUIREMENT: Ignore audio and video from precaching to prevent mobile quota crashes
         globIgnores: ["**/beats/**", "beats/**", "**/*.mp4", "*.mp4", "**/videos/**"],
-        navigateFallbackDenylist: [/^\/beats/],
+        navigateFallbackDenylist: [
+          /^\/beats/,
+          /\/beats\//,
+          /\.(?:xml|txt|pdf|mp4|mp3|wav|png|jpe?g|svg|webp|webmanifest|json)$/i,
+          /\/sitemap\.xml$/,
+          /\/llms\.txt$/,
+          /\/robots\.txt$/,
+        ],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
