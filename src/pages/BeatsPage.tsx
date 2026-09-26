@@ -502,7 +502,7 @@ export const BeatsPage: React.FC<BeatsPageProps> = ({ beats }) => {
                                   ? "EXCLUSIVE"
                                   : beat.price === 0
                                     ? "FREE"
-                                    : `$${beat.price || 29}`}
+                                    : `₹${beat.price || 200}`}
                             </span>
                           </div>
 
@@ -728,7 +728,7 @@ export const BeatsPage: React.FC<BeatsPageProps> = ({ beats }) => {
                           ? "EXCLUSIVE"
                           : beat.price === 0
                             ? "FREE"
-                            : `$${beat.price || 29}`}
+                            : `₹${beat.price || 200}`}
                     </span>
                     <button
                       onClick={() => handleShare(beat)}

@@ -12,13 +12,8 @@ if (!fs.existsSync(contractsDir)) {
   fs.mkdirSync(contractsDir, { recursive: true });
 }
 
-// Read logo image
+const forceRebuild = process.argv.includes("--force") || process.argv.includes("-f");
 const logoPath = path.join(rootDir, "public", "DZVNbeats_pfp.jpeg");
-let logoBase64 = "";
-if (fs.existsSync(logoPath)) {
-  const logoBuffer = fs.readFileSync(logoPath);
-  logoBase64 = `data:image/jpeg;base64,${logoBuffer.toString("base64")}`;
-}
 
 const contractConfigs = [
   {
@@ -73,6 +68,39 @@ const contractConfigs = [
       "Grants sole and exclusive master rights. The beat is permanently retired from the DZVNbeats catalog. Includes full multi-track stems. Features the Culture-First Recoupment Guarantee allowing the artist to keep 100% of their first INR 2,000 gross revenue before a 20% net master royalty split applies.",
   },
 ];
+
+// Check if all contracts already exist and are up to date
+if (!forceRebuild) {
+  const allPdfsExist = contractConfigs.every((cfg) =>
+    fs.existsSync(path.join(contractsDir, cfg.fileName))
+  );
+
+  if (allPdfsExist) {
+    const scriptMtime = fs.statSync(__filename).mtimeMs;
+    const logoMtime = fs.existsSync(logoPath) ? fs.statSync(logoPath).mtimeMs : 0;
+    const newestDependencyMtime = Math.max(scriptMtime, logoMtime);
+
+    const oldestPdfMtime = Math.min(
+      ...contractConfigs.map(
+        (cfg) => fs.statSync(path.join(contractsDir, cfg.fileName)).mtimeMs
+      )
+    );
+
+    if (oldestPdfMtime >= newestDependencyMtime) {
+      console.log(
+        "⚡ [Contracts] All contract PDFs are up to date. Skipping regeneration (use --force to rebuild)."
+      );
+      process.exit(0);
+    }
+  }
+}
+
+// Read logo image if generating
+let logoBase64 = "";
+if (fs.existsSync(logoPath)) {
+  const logoBuffer = fs.readFileSync(logoPath);
+  logoBase64 = `data:image/jpeg;base64,${logoBuffer.toString("base64")}`;
+}
 
 function buildTwoPagePdf(config) {
   const doc = new jsPDF({

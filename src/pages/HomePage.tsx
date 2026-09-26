@@ -11,6 +11,14 @@ import {
   Youtube,
   Download,
   Share2,
+  CheckCircle2,
+  HelpCircle,
+  MapPin,
+  Mail,
+  FileText,
+  Sparkles,
+  Check,
+  Copy,
 } from "lucide-react";
 import { useAudioStore } from "../store/useAudioStore";
 import { Beat } from "../types/beat";
@@ -29,6 +37,13 @@ export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  const copyPageLink = () => {
+    navigator.clipboard.writeText("https://denzven.github.io/DZVNbeats/");
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
+  };
 
   const handleShare = (beat: Beat) => {
     openShareModal(beat);
@@ -98,8 +113,16 @@ export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
             loop
             muted
             playsInline
+            aria-hidden="true"
             className="w-full h-full object-cover opacity-80 pointer-events-none scale-105"
-          />
+          >
+            <track
+              kind="captions"
+              src="data:text/vtt,WEBVTT"
+              label="No speech"
+              default
+            />
+          </video>
         </div>
 
         {/* Interactive Dark Overlay (Reveals bright video underneath cursor) */}
@@ -203,16 +226,17 @@ export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
                 <div>
                   {/* Cover Art Frame with Floating Glass Badges */}
                   <div className="relative aspect-square w-full rounded-2xl bg-zinc-950 mb-5 group-hover:shadow-2xl transition-all overflow-hidden">
-                    {/* Blurred Ambient Glow */}
+                    {/* Ambient Glow (Replaces inline background-image) */}
                     {beat.coverArt && (
-                      <div
-                        className="absolute inset-0 z-0 opacity-20 group-hover:opacity-40 transition-opacity duration-500 rounded-2xl pointer-events-none"
-                        style={{
-                          backgroundImage: `url(${resolveUrl(beat.coverArt)})`,
-                          backgroundSize: "cover",
-                          backgroundPosition: "center",
-                          filter: "blur(20px) saturate(1.5)",
-                        }}
+                      <img
+                        src={resolveUrl(beat.coverArt)}
+                        alt=""
+                        aria-hidden="true"
+                        width={340}
+                        height={340}
+                        loading="lazy"
+                        decoding="async"
+                        className="absolute inset-0 w-full h-full object-cover z-0 opacity-25 group-hover:opacity-45 transition-opacity duration-500 rounded-2xl pointer-events-none filter blur-xl scale-110"
                       />
                     )}
 
@@ -234,7 +258,11 @@ export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
                       {beat.coverArt ? (
                         <img
                           src={resolveUrl(beat.coverArt)}
-                          alt={beat.title}
+                          alt={`${beat.title} Type Beat Artwork`}
+                          width={340}
+                          height={340}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-cover"
                         />
                       ) : (
@@ -274,13 +302,16 @@ export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
                               ? "EXCLUSIVE"
                               : beat.price === 0
                                 ? "FREE"
-                                : `$${beat.price || 29}`}
+                                : `₹${beat.price || 200}`}
                         </span>
                       </div>
 
                       {/* View Button Overlay */}
                       <div className="absolute inset-0 transition-opacity flex items-center justify-center bg-zinc-950/30 backdrop-blur-[2px] opacity-0 group-hover:opacity-100">
-                        <button className="w-14 h-14 rounded-full bg-white text-zinc-950 flex items-center justify-center shadow-2xl transition-transform active:scale-95 hover:scale-110">
+                        <button
+                          aria-label={`View ${beat.title} in beat store`}
+                          className="w-14 h-14 rounded-full bg-white text-zinc-950 flex items-center justify-center shadow-2xl transition-transform active:scale-95 hover:scale-110"
+                        >
                           <ArrowRight className="w-6 h-6 text-zinc-950" />
                         </button>
                       </div>
@@ -423,41 +454,274 @@ export const HomePage: React.FC<HomePageProps> = ({ beats }) => {
         </div>
       </section>
 
-      {/* Studio Value Proposition */}
-      <section className="py-20 bg-zinc-950">
+      {/* Studio Value Proposition & Trust Badges */}
+      <section className="py-20 bg-zinc-950 border-b border-zinc-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-900">
-              <Cpu className="w-8 h-8 text-zinc-300 mb-4" />
-              <h3 className="text-lg font-bold text-white mb-2">
-                High-End Analog &amp; Digital Hybrid
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="text-xs font-mono uppercase text-emerald-400 tracking-wider">
+              Studio Guarantees &amp; Quality
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-1">
+              Production Standard
+            </h2>
+            <p className="text-sm text-zinc-400 mt-2">
+              Every instrumental is engineered to commercial broadcast standards, delivering clean headroom, heavy low-end impact, and pristine stereo imaging.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-900 hover:border-zinc-800 transition-colors">
+              <Cpu className="w-7 h-7 text-zinc-300 mb-3" />
+              <h3 className="text-base font-bold text-white mb-2">
+                Analog &amp; Digital Hybrid
               </h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Crafted using premium synthesizer hardware, analog warmth, and
-                industry-standard mixing chains for maximum impact in club sound
-                systems.
+                Crafted using premium synthesizer hardware, analog tape warmth, and industry-grade mixing chains for maximum impact in club sound systems.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-900">
-              <Sliders className="w-8 h-8 text-zinc-300 mb-4" />
-              <h3 className="text-lg font-bold text-white mb-2">
+            <div className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-900 hover:border-zinc-800 transition-colors">
+              <Sliders className="w-7 h-7 text-zinc-300 mb-3" />
+              <h3 className="text-base font-bold text-white mb-2">
                 Separated Track Stems
               </h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Premium and Exclusive leases include fully organized, dry 24-bit
-                WAV track stems for custom arrangement and vocal mixing control.
+                Exclusive and premium licenses provide complete, dry 24-bit WAV stem archives for precise vocal integration and custom song arrangements.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-900 hover:border-zinc-800 transition-colors">
+              <ShieldCheck className="w-7 h-7 text-zinc-300 mb-3" />
+              <h3 className="text-base font-bold text-white mb-2">
+                Instant Direct Licensing
+              </h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Legally binding contracts governed by the Indian Copyright Act, 1957. Direct producer delivery ensures zero middleman fees and instant downloads.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-900 hover:border-zinc-800 transition-colors">
+              <Sparkles className="w-7 h-7 text-zinc-300 mb-3" />
+              <h3 className="text-base font-bold text-white mb-2">
+                100% Royalty Retention
+              </h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Artists keep 100% of all streaming royalties and music video revenue within their licensed tier limits. No hidden publishing cuts.
+              </p>
+            </div>
+          </div>
+
+          {/* Social Share Buttons Bar */}
+          <div className="mt-12 p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <span className="text-xs font-mono uppercase text-zinc-400 tracking-wider block">
+                Share With Fellow Artists
+              </span>
+              <h3 className="text-sm font-bold text-white mt-0.5">
+                Share DZVNbeats Portfolio
+              </h3>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <a
+                href="https://twitter.com/intent/tweet?text=Check%20out%20high-quality%20type%20beats%20and%20rap%20instrumentals%20on%20DZVNbeats&url=https%3A%2F%2Fdenzven.github.io%2FDZVNbeats%2F"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Share on X / Twitter"
+                className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-xl border border-zinc-700 transition-colors flex items-center gap-2"
+              >
+                <span>Share on X</span>
+              </a>
+              <a
+                href="https://api.whatsapp.com/send?text=Check%20out%20DZVNbeats%20for%20trap%2C%20drill%2C%20and%20rap%20type%20beats%3A%20https%3A%2F%2Fdenzven.github.io%2FDZVNbeats%2F"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Share on WhatsApp"
+                className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-xl border border-zinc-700 transition-colors flex items-center gap-2"
+              >
+                <span>Share on WhatsApp</span>
+              </a>
+              <button
+                onClick={copyPageLink}
+                aria-label="Copy website link"
+                className="px-4 py-2 bg-white text-zinc-950 text-xs font-bold rounded-xl hover:bg-zinc-200 transition-colors flex items-center gap-1.5"
+              >
+                {copiedLink ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copiedLink ? "Link Copied!" : "Copy Link"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* About The Producer & Studio (E-E-A-T Section) */}
+      <section id="about" className="py-20 bg-zinc-950 border-b border-zinc-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-5">
+              <span className="text-xs font-mono uppercase text-emerald-400 tracking-wider">
+                About The Producer • E-E-A-T Authority
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+                Denzven Vadakkan (DZVN)
+              </h2>
+              <p className="text-xs font-mono text-zinc-400 mt-1">
+                Music Producer, Composer &amp; Audio Engineer • Mumbai, India
+              </p>
+
+              <div className="mt-6 space-y-4 text-sm text-zinc-400 leading-relaxed">
+                <p>
+                  <strong>DZVNbeats</strong> is the creative output of independent music producer and sound designer Denzven Vadakkan. Specializing in hard-hitting trap beats, dark UK/NY drill instrumentals, and atmospheric R&amp;B progressions, every composition is crafted from scratch with dedicated synthesizer sound design and bespoke drum layering.
+                </p>
+                <p>
+                  With extensive background in mixing engineering, each instrumental is mixed with precise stereo imaging, controlled low-end dynamics, and optimal vocal headroom (-14 to -9 LUFS), ensuring seamless vocal recording and commercial streaming release.
+                </p>
+              </div>
+
+              {/* Physical Studio Address & Contact Signals */}
+              <div className="mt-6 pt-6 border-t border-zinc-900 space-y-2.5">
+                <address className="not-italic text-xs font-mono text-zinc-400 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-zinc-400 flex-shrink-0" />
+                  <span>Physical Studio: Mumbai, Maharashtra 400001, India</span>
+                </address>
+                <div className="text-xs font-mono text-zinc-400 flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-zinc-400 flex-shrink-0" />
+                  <a href="mailto:dzvn.beats@gmail.com" className="hover:text-white transition-colors underline">
+                    Inquiries &amp; Direct Support: dzvn.beats@gmail.com
+                  </a>
+                </div>
+              </div>
+
+              <div className="mt-8 flex flex-wrap gap-4">
+                <Link
+                  to="/licensing"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 text-xs font-bold uppercase tracking-wider rounded-xl transition-colors"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  Licensing Terms &amp; Guarantees
+                </Link>
+                <Link
+                  to="/beats"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-bold uppercase tracking-wider rounded-xl transition-colors"
+                >
+                  <Music className="w-3.5 h-3.5" />
+                  Audition Catalog
+                </Link>
+              </div>
+            </div>
+
+            {/* Studio Capabilities / Stats Card */}
+            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800/80">
+                <div className="w-10 h-10 rounded-xl bg-zinc-800/60 flex items-center justify-center text-zinc-200 mb-4">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                </div>
+                <h3 className="text-base font-bold text-white mb-1.5">
+                  100% Original Audio
+                </h3>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Zero uncleared sample loops. All melodies, synth leads, and basslines are original musical compositions, preventing copyright takedowns.
+                </p>
+              </div>
+
+              <div className="p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800/80">
+                <div className="w-10 h-10 rounded-xl bg-zinc-800/60 flex items-center justify-center text-zinc-200 mb-4">
+                  <Sliders className="w-5 h-5 text-blue-400" />
+                </div>
+                <h3 className="text-base font-bold text-white mb-1.5">
+                  Mastered 24-bit Audio
+                </h3>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Delivered in uncompressed 24-bit 44.1kHz WAV resolution, preserving transient dynamics and warmth for major-label audio quality.
+                </p>
+              </div>
+
+              <div className="p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800/80">
+                <div className="w-10 h-10 rounded-xl bg-zinc-800/60 flex items-center justify-center text-zinc-200 mb-4">
+                  <ShieldCheck className="w-5 h-5 text-purple-400" />
+                </div>
+                <h3 className="text-base font-bold text-white mb-1.5">
+                  Legally Binding Contracts
+                </h3>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Every license includes an official signed PDF contract compliant with the Indian Copyright Act, 1957 and Indian Contract Act, 1872.
+                </p>
+              </div>
+
+              <div className="p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800/80">
+                <div className="w-10 h-10 rounded-xl bg-zinc-800/60 flex items-center justify-center text-zinc-200 mb-4">
+                  <Download className="w-5 h-5 text-amber-400" />
+                </div>
+                <h3 className="text-base font-bold text-white mb-1.5">
+                  Instant File Delivery
+                </h3>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Receive your untagged high-definition audio files and stem archives directly via secure cloud download upon license confirmation.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Frequently Asked Questions (FAQ) Section */}
+      <section id="faq" className="py-20 bg-zinc-950">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <span className="text-xs font-mono uppercase text-zinc-400 tracking-wider flex items-center justify-center gap-1.5">
+              <HelpCircle className="w-3.5 h-3.5 text-zinc-400" />
+              Artist Assistance &amp; Clarifications
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-1">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-sm text-zinc-400 mt-2">
+              Everything you need to know about auditioning, leasing, stem delivery, and commercial distribution.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-900">
+              <h3 className="text-base font-bold text-white mb-2">
+                Can I download and use DZVNbeats instrumentals for free?
+              </h3>
+              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+                Yes! You can download free tagged MP3 evaluation versions directly from our beat catalog. Free downloads are intended for auditioning, demo recording, and non-commercial streaming on SoundCloud or YouTube with credit specified as <em>(Prod. DZVN)</em>.
               </p>
             </div>
 
             <div className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-900">
-              <ShieldCheck className="w-8 h-8 text-zinc-300 mb-4" />
-              <h3 className="text-lg font-bold text-white mb-2">
-                Instant Direct Licensing
+              <h3 className="text-base font-bold text-white mb-2">
+                What is included with a Basic Commercial Beat Lease (₹200)?
               </h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                No middleman markup. Direct producer inquiries deliver untagged
-                files, contracts, and stem download keys within hours.
+              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+                Our Basic Lease includes the untagged high-definition 24-bit master WAV audio file, permission for up to 50,000 commercial streams across Spotify, Apple Music, and Amazon Music, 1 monetized music video, and 100% retention of streaming royalties within the limit.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-900">
+              <h3 className="text-base font-bold text-white mb-2">
+                What are track stems and when do I need them?
+              </h3>
+              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+                Track stems are individual, isolated audio files for every instrument in the beat (such as kick, snare, 808 bass, melody synths, and FX). Stems are included with Exclusive licenses and allow audio mixing engineers complete control over leveling, EQ, and vocal blending.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-900">
+              <h3 className="text-base font-bold text-white mb-2">
+                Can I register my song with YouTube Content ID?
+              </h3>
+              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+                Under Free and non-exclusive Basic Leases, registering songs with automated audio fingerprinting systems (such as YouTube Content ID or TuneCore Content ID) is prohibited because multiple artists may license the same instrumental. Only Exclusive rights holders may submit to Content ID.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-900">
+              <h3 className="text-base font-bold text-white mb-2">
+                How do I receive my purchased files and signed agreement?
+              </h3>
+              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+                Following payment verification, we generate an official PDF agreement signed by Denzven Vadakkan and provide secure cloud links containing the untagged 24-bit WAV file and stem archives directly to your email address within hours.
               </p>
             </div>
           </div>

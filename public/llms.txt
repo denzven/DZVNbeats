@@ -1,0 +1,29 @@
+# DZVNbeats
+> Official music portfolio, beat store, and licensing platform for independent music producer Denzven Vadakkan (DZVN).
+
+DZVNbeats provides premium type beats, hard-hitting rap instrumentals, trap beats, UK/NY drill tracks, and atmospheric R&B productions. Available for free non-commercial download and instant commercial licensing with stems.
+
+## Core Information
+- **Producer**: Denzven Vadakkan (DZVN)
+- **Location**: Mumbai, Maharashtra, India
+- **Primary Website**: https://denzven.github.io/DZVNbeats/
+- **Inquiries & Custom Production**: dzvn.beats@gmail.com
+- **YouTube Channel**: https://www.youtube.com/@DZVNbeats
+- **Instagram**: https://instagram.com/dzvn_editsss
+
+## Music Catalog & Genres
+- **Trap Type Beats**: Hard 808s, dark synth textures, crisp hi-hat rolls (influenced by Metro Boomin, Future, 21 Savage, Travis Scott).
+- **Drill Type Beats**: Sliding 808 glides, aggressive snare syncopation, haunting piano/string melodies (inspired by Pop Smoke, Central Cee).
+- **R&B & Melodic Beats**: Lush Rhodes chords, atmospheric vocal chops, smooth basslines (inspired by The Weeknd, Bryson Tiller, Partynextdoor).
+
+## Licensing Tiers & Pricing
+1. **Free (Tagged MP3)**: Free evaluation, non-commercial demos, non-monetized streaming on SoundCloud or YouTube with credit "(Prod. DZVN)".
+2. **Basic Commercial Lease (₹200 / ~$2.50 USD)**: Untagged high-definition 24-bit WAV file, up to 50,000 commercial audio streams, 1 monetized music video, non-exclusive commercial rights.
+3. **Exclusive Purchase Contract (₹1,000 / ~$12.00 USD)**: Full sole ownership transfer, separated dry 24-bit WAV track stems, unlimited distribution, 100% recoupment rights under Indian Copyright Act, 1957.
+
+## Key Links & Resources
+- [Beats Catalog](https://denzven.github.io/DZVNbeats/beats/): Explore full instrumental library.
+- [Licensing Terms](https://denzven.github.io/DZVNbeats/licensing/): Read full legally binding licensing contracts and download PDFs.
+- [Privacy Policy](https://denzven.github.io/DZVNbeats/privacy/): Information Technology Act, 2000 compliant zero-tracking privacy policy.
+- [Terms of Service](https://denzven.github.io/DZVNbeats/terms/): Terms governing beat leases, Content ID prohibitions, and intellectual property.
+- [Refund Policy](https://denzven.github.io/DZVNbeats/refund/): Digital delivery and refund covenants.

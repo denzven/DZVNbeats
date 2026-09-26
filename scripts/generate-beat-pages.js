@@ -33,6 +33,19 @@ function escapeXml(str) {
     .replace(/'/g, "&apos;");
 }
 
+function writeIfChanged(filePath, content) {
+  if (fs.existsSync(filePath)) {
+    try {
+      const existing = fs.readFileSync(filePath, "utf-8");
+      if (existing === content) {
+        return false;
+      }
+    } catch {}
+  }
+  fs.writeFileSync(filePath, content, "utf-8");
+  return true;
+}
+
 // 1. Generate Individual Beat Landing Pages
 export function generateBeatPages() {
   if (!fs.existsSync(beatsJsonPath)) {
@@ -41,7 +54,7 @@ export function generateBeatPages() {
   }
 
   const beats = JSON.parse(fs.readFileSync(beatsJsonPath, "utf-8"));
-  console.log(`[SEO Generator] Generating rich SEO landing pages for ${beats.length} beat(s)...`);
+  let pagesUpdated = 0;
 
   // Ensure public/beat directory exists
   if (!fs.existsSync(publicBeatDir)) {
@@ -77,7 +90,7 @@ export function generateBeatPages() {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${titleFormatted}</title>
     <meta name="description" content="${descFormatted}" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
     <link rel="icon" type="image/png" href="../../favicon.png" />
     <link rel="canonical" href="${canonicalBeatUrl}" />
 
@@ -220,7 +233,10 @@ export function generateBeatPages() {
       <img
         class="artwork"
         src="${relativeCoverUrl}"
-        alt="${escapeHtml(beat.title)}"
+        alt="${escapeHtml(beat.title)} Type Beat Artwork"
+        width="180"
+        height="180"
+        loading="eager"
         onerror="this.src='../../banner.png'"
       />
       <div class="title">${escapeHtml(beat.title)}</div>
@@ -246,7 +262,10 @@ export function generateBeatPages() {
 </html>
 `;
 
-    fs.writeFileSync(path.join(beatFolder, "index.html"), htmlContent);
+    const targetPath = path.join(beatFolder, "index.html");
+    if (writeIfChanged(targetPath, htmlContent)) {
+      pagesUpdated++;
+    }
   }
 
   // Garbage Collection: Delete old orphaned beat SEO folders
@@ -271,7 +290,11 @@ export function generateBeatPages() {
     console.warn("Could not clean up orphaned beat folders:", cleanErr.message);
   }
 
-  console.log(`✅ [SEO Generator] Generated ${beats.length} static SEO landing page(s) in public/beat/`);
+  if (pagesUpdated > 0) {
+    console.log(`✅ [SEO Generator] Updated ${pagesUpdated} static SEO landing page(s) in public/beat/`);
+  } else {
+    console.log(`⚡ [SEO Generator] All ${beats.length} beat landing pages are up to date.`);
+  }
 
   // Also generate Sitemap and Static Policy Pages
   generateSitemap(beats);
@@ -317,6 +340,11 @@ export function generateSitemap(beats = []) {
       loc: `${PRODUCTION_ORIGIN}${PRODUCTION_BASE}refund/`,
       changefreq: "monthly",
       priority: "0.5",
+    },
+    {
+      loc: `${PRODUCTION_ORIGIN}${PRODUCTION_BASE}llms.txt`,
+      changefreq: "monthly",
+      priority: "0.4",
     },
   ];
 
@@ -373,14 +401,16 @@ export function generateSitemap(beats = []) {
 `;
 
   const sitemapPath = path.join(publicDir, "sitemap.xml");
-  fs.writeFileSync(sitemapPath, xml, "utf-8");
-  console.log(`✅ [SEO Generator] Successfully generated public/sitemap.xml with ${coreRoutes.length + beats.length} URLs.`);
+  if (writeIfChanged(sitemapPath, xml)) {
+    console.log(`✅ [SEO Generator] Updated public/sitemap.xml with ${coreRoutes.length + beats.length} URLs.`);
+  } else {
+    console.log(`⚡ [SEO Generator] public/sitemap.xml is up to date.`);
+  }
 }
 
 // 3. Generate Static Pre-rendered Fallback Landing Pages for Headless Crawlers (GitHub Pages)
 export function generateStaticPolicyPages(beats = []) {
-  console.log("[SEO Generator] Generating static crawler fallback pages (/privacy, /terms, /refund, /licensing, /beats)...");
-
+  let policyUpdated = 0;
   const pagesToGenerate = [
     {
       dirName: "beats",
@@ -485,7 +515,7 @@ export function generateStaticPolicyPages(beats = []) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${escapeHtml(page.title)}</title>
     <meta name="description" content="${escapeHtml(page.description)}" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
     <link rel="icon" type="image/png" href="../favicon.png" />
     <link rel="canonical" href="${page.canonical}" />
 
@@ -583,10 +613,16 @@ export function generateStaticPolicyPages(beats = []) {
 </html>
 `;
 
-    fs.writeFileSync(path.join(targetFolder, "index.html"), html, "utf-8");
+    if (writeIfChanged(path.join(targetFolder, "index.html"), html)) {
+      policyUpdated++;
+    }
   }
 
-  console.log("✅ [SEO Generator] Generated static fallback pages for /beats, /licensing, /privacy, /terms, /refund.");
+  if (policyUpdated > 0) {
+    console.log(`✅ [SEO Generator] Updated ${policyUpdated} static fallback page(s).`);
+  } else {
+    console.log(`⚡ [SEO Generator] All static fallback pages are up to date.`);
+  }
 }
 
 // Run directly if invoked from command line

@@ -13,6 +13,7 @@ import { LicensingLegalPage } from "./pages/LicensingLegalPage";
 import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
 import { TermsOfServicePage } from "./pages/TermsOfServicePage";
 import { RefundPolicyPage } from "./pages/RefundPolicyPage";
+import { DistributionAdminPage } from "./pages/DistributionAdminPage";
 import { BottomPlayer } from "./components/BottomPlayer";
 import { InquireModal } from "./components/InquireModal";
 import { Footer } from "./components/Footer";
@@ -66,11 +67,19 @@ const AppContent: React.FC<{ beats: Beat[] }> = ({ beats }) => {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-zinc-800 selection:text-white">
       <CustomCursor />
+      {/* Accessible Skip Navigation Link for Screen Readers & Keyboard Users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:px-4 focus:py-2 focus:bg-white focus:text-zinc-950 focus:font-bold focus:rounded-xl focus:shadow-2xl focus:outline-none"
+      >
+        Skip to main content
+      </a>
+
       {/* Header */}
       <Header />
 
       {/* Multi-Page Routes */}
-      <main className="flex-1">
+      <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
         <AnimatePresence
           mode="wait"
           onExitComplete={() => window.scrollTo(0, 0)}
@@ -82,6 +91,8 @@ const AppContent: React.FC<{ beats: Beat[] }> = ({ beats }) => {
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/terms" element={<TermsOfServicePage />} />
             <Route path="/refund" element={<RefundPolicyPage />} />
+            <Route path="/admin" element={<DistributionAdminPage beats={beats} />} />
+            <Route path="/distribute" element={<DistributionAdminPage beats={beats} />} />
             <Route path="*" element={<HomePage beats={beats} />} />
           </Routes>
         </AnimatePresence>

@@ -321,6 +321,9 @@ export const BottomPlayer: React.FC = () => {
               <img
                 src={resolveUrl(currentTrack.coverArt)}
                 alt={currentTrack.title}
+                width={44}
+                height={44}
+                loading="lazy"
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -376,7 +379,7 @@ export const BottomPlayer: React.FC = () => {
         <div className="flex md:hidden items-center gap-3 pr-2">
           <button
             onClick={() => currentTrack && openShareModal(currentTrack)}
-            aria-label="Share"
+            aria-label="Share beat"
             title="Share beat"
             className="text-zinc-400 hover:text-white transition-colors p-1"
           >
@@ -384,7 +387,7 @@ export const BottomPlayer: React.FC = () => {
           </button>
           <button
             onClick={() => openInquireModal(currentTrack)}
-            aria-label="Download"
+            aria-label="Download options"
             title="Download options"
             className="text-zinc-400 hover:text-white transition-colors p-1"
           >
@@ -443,6 +446,7 @@ export const BottomPlayer: React.FC = () => {
               max={duration || 100}
               value={currentTime}
               onChange={handleSeek}
+              aria-label="Audio timeline position scrubber"
               className="w-full h-1.5 bg-zinc-800 accent-white rounded-lg cursor-pointer focus:outline-none"
             />
             <span className="w-8 text-left">{formatTime(duration)}</span>
@@ -454,6 +458,7 @@ export const BottomPlayer: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={toggleMute}
+              aria-label={isMuted || volume === 0 ? "Unmute audio" : "Mute audio"}
               className="text-zinc-400 hover:text-white transition-colors"
             >
               {isMuted || volume === 0 ? (
@@ -469,12 +474,14 @@ export const BottomPlayer: React.FC = () => {
               step={0.01}
               value={isMuted ? 0 : volume}
               onChange={(e) => setVolume(parseFloat(e.target.value))}
+              aria-label="Volume level"
               className="w-20 h-1.5 bg-zinc-800 accent-white rounded-lg cursor-pointer"
             />
           </div>
 
           <button
             onClick={() => currentTrack && openShareModal(currentTrack)}
+            aria-label="Share track"
             title="Share beat (Includes cover art & auto-play link)"
             className="p-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-800 rounded-lg transition-all"
           >
@@ -483,6 +490,7 @@ export const BottomPlayer: React.FC = () => {
 
           <button
             onClick={() => openInquireModal(currentTrack)}
+            aria-label="Download beat options"
             className="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-700 font-semibold text-xs rounded-lg transition-all flex items-center gap-1.5"
           >
             <Download className="w-3.5 h-3.5" />

@@ -10,6 +10,7 @@ import {
   Menu,
   X,
   Youtube,
+  Sliders,
 } from "lucide-react";
 
 export const Header: React.FC = () => {
@@ -59,6 +60,8 @@ export const Header: React.FC = () => {
             <img
               src={`${import.meta.env.BASE_URL}pwa-192x192.png`}
               alt="DZVNbeats Favicon"
+              width={40}
+              height={40}
               className="w-full h-full object-cover"
             />
           </div>
@@ -119,6 +122,29 @@ export const Header: React.FC = () => {
             <ShieldCheck className="w-3.5 h-3.5" />
             Licensing &amp; Legal
           </NavLink>
+
+          <a
+            href="#about"
+            className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors"
+          >
+            About
+          </a>
+
+          {import.meta.env.DEV && (
+            <NavLink
+              to="/distribute"
+              className={({ isActive }) =>
+                `flex items-center gap-1.5 transition-colors ${
+                  isActive
+                    ? "text-amber-400 font-bold border-b border-amber-400 pb-0.5"
+                    : "text-zinc-400 hover:text-amber-300"
+                }`
+              }
+            >
+              <Sliders className="w-3.5 h-3.5 text-amber-400" />
+              Distribute
+            </NavLink>
+          )}
         </nav>
 
         {/* Actions & PWA Install */}
@@ -126,6 +152,7 @@ export const Header: React.FC = () => {
           {deferredPrompt && (
             <button
               onClick={handleInstallPWA}
+              aria-label="Install Progressive Web App"
               className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-xs font-mono bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-700 rounded-lg transition-all"
             >
               <Download className="w-3.5 h-3.5 text-zinc-400" />
@@ -137,28 +164,31 @@ export const Header: React.FC = () => {
             href="https://www.youtube.com/@DZVNbeats"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="YouTube"
+            aria-label="DZVNbeats on YouTube"
             className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-900 rounded-lg border border-transparent hover:border-zinc-800 transition-all"
           >
             <Youtube className="w-4 h-4" />
+            <span className="sr-only">DZVNbeats on YouTube</span>
           </a>
 
           <a
             href="https://instagram.com/dzvn_editsss"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Instagram"
+            aria-label="DZVNbeats on Instagram"
             className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-900 rounded-lg border border-transparent hover:border-zinc-800 transition-all"
           >
             <Instagram className="w-4 h-4" />
+            <span className="sr-only">DZVNbeats on Instagram</span>
           </a>
 
           <a
             href="mailto:dzvn.beats@gmail.com"
-            aria-label="Email DZVN"
+            aria-label="Email DZVNbeats Studio"
             className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-900 rounded-lg border border-transparent hover:border-zinc-800 transition-all"
           >
             <Mail className="w-4 h-4" />
+            <span className="sr-only">Email DZVNbeats Studio</span>
           </a>
 
           <Link
@@ -170,6 +200,7 @@ export const Header: React.FC = () => {
           {/* Mobile Menu Toggle */}
           <button
             className="md:hidden p-2 text-zinc-400 hover:text-white"
+            aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? (
@@ -221,6 +252,20 @@ export const Header: React.FC = () => {
             <ShieldCheck className="w-4 h-4" />
             Licensing &amp; Legal
           </NavLink>
+          {import.meta.env.DEV && (
+            <NavLink
+              to="/distribute"
+              onClick={() => setMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-2 text-sm font-mono tracking-wider uppercase transition-colors ${
+                  isActive ? "text-amber-400 font-bold" : "text-zinc-400"
+                }`
+              }
+            >
+              <Sliders className="w-4 h-4 text-amber-400" />
+              Distribute
+            </NavLink>
+          )}
         </nav>
       )}
     </header>

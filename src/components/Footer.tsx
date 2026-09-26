@@ -21,6 +21,9 @@ export const Footer: React.FC = () => {
                 <img
                   src={`${import.meta.env.BASE_URL}pwa-192x192.png`}
                   alt="DZVNbeats Logo"
+                  width={32}
+                  height={32}
+                  loading="lazy"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -29,21 +32,21 @@ export const Footer: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-zinc-400 leading-relaxed max-w-sm">
-              Premium, hard-hitting type beats for upcoming artists. Download
-              free tagged instrumentals instantly or grab affordable leases for
-              your next hit.
+              Independent music production studio based in Mumbai, India. We produce
+              high-fidelity trap, UK drill, and melodic R&amp;B instrumentals for recording
+              artists and visual creators.
             </p>
             <p className="text-[11px] font-mono text-zinc-500 mt-4 leading-relaxed">
-              © {new Date().getFullYear()} DZVNbeats • Denzven Vadakkan
+              © {new Date().getFullYear()} DZVNbeats • Produced &amp; Engineered by Denzven Vadakkan
               <br />
-              Mumbai, Maharashtra, India.
+              Mumbai, Maharashtra 400001, India.
             </p>
           </div>
 
           {/* Quick Navigation */}
           <div>
             <h4 className="text-xs font-mono uppercase text-zinc-200 font-semibold mb-3">
-              Catalog
+              Catalog &amp; Studio
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
@@ -56,7 +59,7 @@ export const Footer: React.FC = () => {
                   to="/beats"
                   className="hover:text-white transition-colors"
                 >
-                  Beats Catalog (Grid)
+                  Beats Catalog (All Tracks)
                 </Link>
               </li>
               <li>
@@ -66,6 +69,16 @@ export const Footer: React.FC = () => {
                 >
                   Licensing Tiers &amp; Pricing
                 </Link>
+              </li>
+              <li>
+                <a href="#about" className="hover:text-white transition-colors">
+                  About Producer &amp; Bio
+                </a>
+              </li>
+              <li>
+                <a href="#faq" className="hover:text-white transition-colors">
+                  Production FAQ
+                </a>
               </li>
             </ul>
           </div>
@@ -122,25 +135,28 @@ export const Footer: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 rounded-lg transition-colors"
-                aria-label="YouTube"
+                aria-label="DZVNbeats on YouTube"
               >
                 <Youtube className="w-4 h-4" />
+                <span className="sr-only">DZVNbeats on YouTube</span>
               </a>
               <a
                 href="https://instagram.com/dzvn_editsss"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 rounded-lg transition-colors"
-                aria-label="Instagram"
+                aria-label="DZVNbeats on Instagram"
               >
                 <Instagram className="w-4 h-4" />
+                <span className="sr-only">DZVNbeats on Instagram</span>
               </a>
               <a
                 href="mailto:dzvn.beats@gmail.com"
                 className="p-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 rounded-lg transition-colors"
-                aria-label="Email"
+                aria-label="Email DZVNbeats Studio"
               >
                 <Mail className="w-4 h-4" />
+                <span className="sr-only">Email DZVNbeats Studio</span>
               </a>
             </div>
             <p className="text-[11px] text-zinc-500 mt-3 font-mono">
@@ -150,9 +166,10 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="border-t border-zinc-900 pt-6 flex items-center justify-between text-xs font-mono text-zinc-600">
-          <span>HOSTED ON GITHUB PAGES • PWA READY</span>
+          <span>HOSTED ON GITHUB PAGES • PWA READY • LAST UPDATED: SEPTEMBER 2026</span>
           <button
             onClick={scrollToTop}
+            aria-label="Scroll back to top"
             className="flex items-center gap-1 text-zinc-400 hover:text-white transition-colors"
           >
             <span>TOP</span>
@@ -160,21 +177,14 @@ export const Footer: React.FC = () => {
           </button>
         </div>
 
-        {/* SEO / Meta keywords */}
-        <div className="pt-8 mt-4 text-justify text-[9px] text-zinc-800 leading-relaxed font-sans">
-          Premium type beats and instrumentals for sale. Download free type
-          beats, buy rap beats for sale, and lease high-quality trap type beats,
-          R&amp;B instrumentals, and drill type beats instantly. Drake type
-          beat, Travis Scott type beat, Future type beat, Metro Boomin type
-          beat, Playboi Carti type beat, Lil Uzi Vert type beat, 21 Savage type
-          beat, J. Cole type beat, Kendrick Lamar type beat, Gunna type beat,
-          Lil Baby type beat, Young Thug type beat, Don Toliver type beat, The
-          Weeknd type beat, Bryson Tiller type beat, Partynextdoor type beat,
-          Brent Faiyaz type beat, Pop Smoke type beat, Central Cee type beat,
-          Chief Keef type beat, Yeat type beat, Ken Carson type beat, Destroy
-          Lonely type beat, Lil Tecca type beat, Juice WRLD type beat,
-          XXXTentacion type beat, Polo G type beat, Roddy Ricch type beat, NBA
-          Youngboy type beat.
+        {/* E-E-A-T Editorial & Production Transparency Notice */}
+        <div className="pt-8 mt-4 border-t border-zinc-900/60 text-xs text-zinc-500 leading-relaxed font-sans max-w-4xl">
+          <p className="mb-2">
+            <strong className="text-zinc-400">Editorial &amp; Production Integrity:</strong> All musical compositions, drum arrangements, and audio stems on DZVNbeats are original master recordings composed and engineered by Denzven Vadakkan. Each instrumental is mixed in 24-bit/44.1kHz precision to ensure competitive loudness, headroom, and dynamic impact for commercial vocal tracking.
+          </p>
+          <p>
+            Governed under the Indian Copyright Act, 1957 and the Indian Contract Act, 1872. Commercial licenses grant untagged delivery, streaming royalties retention, and synchronous distribution rights.
+          </p>
         </div>
       </div>
     </footer>

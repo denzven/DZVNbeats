@@ -1,0 +1,2 @@
+# This file ensures the public/videos/ directory exists in git.
+# Output video renders (.mp4, .webm, etc.) are ignored by .gitignore.

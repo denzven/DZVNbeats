@@ -1,5 +1,5 @@
 # Robots.txt for DZVNbeats (https://denzven.github.io/DZVNbeats/)
-# Directives for search engines and web crawlers
+# Directives for search engines, web crawlers, and AI discovery agents
 
 User-agent: *
 Allow: /
@@ -13,9 +13,11 @@ Allow: /licensing/
 Allow: /privacy/
 Allow: /terms/
 Allow: /refund/
+Allow: /llms.txt
 
 # Disallow direct indexing of internal JSON data dumps
 Disallow: /src/data/*.json
 
-# Sitemap Location
+# Sitemap & LLMs Discovery
 Sitemap: https://denzven.github.io/DZVNbeats/sitemap.xml
+# LLM Context: https://denzven.github.io/DZVNbeats/llms.txt

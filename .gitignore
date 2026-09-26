@@ -6,4 +6,16 @@ dist-ssr
 .env.*
 !.env.example
 .DS_Store
+.beats-manifest-cache.json
+vite.config.ts.timestamp-*.mjs
+client_secrets.json
+client.json
+client_secret_*.json
+*client*.json
+.youtube-token.json
+token.json
+dist/videos/
 
+# Rendered video outputs (keep directory structure, ignore generated media)
+public/videos/*
+!public/videos/.gitkeep
