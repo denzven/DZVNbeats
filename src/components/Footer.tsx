@@ -32,14 +32,12 @@ export const Footer: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-zinc-400 leading-relaxed max-w-sm">
-              Independent music production studio based in Mumbai, India. We produce
+              Independent music production studio by producer Denzven (@dzvn_editsss). We produce
               high-fidelity trap, UK drill, and melodic R&amp;B instrumentals for recording
               artists and visual creators.
             </p>
             <p className="text-[11px] font-mono text-zinc-500 mt-4 leading-relaxed">
-              © {new Date().getFullYear()} DZVNbeats • Produced &amp; Engineered by Denzven Vadakkan
-              <br />
-              Mumbai, Maharashtra 400001, India.
+              © {new Date().getFullYear()} DZVNbeats • Produced &amp; Engineered by Denzven (@dzvn_editsss)
             </p>
           </div>
 
@@ -51,7 +49,7 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2 text-xs">
               <li>
                 <Link to="/" className="hover:text-white transition-colors">
-                  Home Page
+                  Home
                 </Link>
               </li>
               <li>
@@ -59,7 +57,7 @@ export const Footer: React.FC = () => {
                   to="/beats"
                   className="hover:text-white transition-colors"
                 >
-                  Beats Catalog (All Tracks)
+                  Beats Catalog
                 </Link>
               </li>
               <li>
@@ -67,18 +65,8 @@ export const Footer: React.FC = () => {
                   to="/licensing"
                   className="hover:text-white transition-colors"
                 >
-                  Licensing Tiers &amp; Pricing
+                  Licensing &amp; Pricing
                 </Link>
-              </li>
-              <li>
-                <a href="#about" className="hover:text-white transition-colors">
-                  About Producer &amp; Bio
-                </a>
-              </li>
-              <li>
-                <a href="#faq" className="hover:text-white transition-colors">
-                  Production FAQ
-                </a>
               </li>
             </ul>
           </div>
@@ -94,7 +82,7 @@ export const Footer: React.FC = () => {
                   to="/licensing"
                   className="hover:text-white transition-colors"
                 >
-                  Licensing Agreements (PDF)
+                  Licensing Agreement
                 </Link>
               </li>
               <li>
@@ -118,7 +106,7 @@ export const Footer: React.FC = () => {
                   to="/refund"
                   className="hover:text-white transition-colors"
                 >
-                  Refund &amp; Cancellation
+                  Refund Policy
                 </Link>
               </li>
             </ul>
@@ -127,7 +115,7 @@ export const Footer: React.FC = () => {
           {/* Socials & Connect */}
           <div>
             <h4 className="text-xs font-mono uppercase text-zinc-200 font-semibold mb-3">
-              Direct Connect
+              Connect
             </h4>
             <div className="flex items-center gap-3">
               <a
@@ -161,12 +149,14 @@ export const Footer: React.FC = () => {
             </div>
             <p className="text-[11px] text-zinc-500 mt-3 font-mono">
               Inquiries: dzvn.beats@gmail.com
+              <br />
+              Instagram: <a href="https://instagram.com/dzvn_editsss" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-white transition-colors">@dzvn_editsss</a>
             </p>
           </div>
         </div>
 
         <div className="border-t border-zinc-900 pt-6 flex items-center justify-between text-xs font-mono text-zinc-600">
-          <span>HOSTED ON GITHUB PAGES • PWA READY • LAST UPDATED: SEPTEMBER 2026</span>
+          <span>© {new Date().getFullYear()} DZVNbeats. All rights reserved.</span>
           <button
             onClick={scrollToTop}
             aria-label="Scroll back to top"
@@ -175,16 +165,6 @@ export const Footer: React.FC = () => {
             <span>TOP</span>
             <ArrowUp className="w-3.5 h-3.5" />
           </button>
-        </div>
-
-        {/* E-E-A-T Editorial & Production Transparency Notice */}
-        <div className="pt-8 mt-4 border-t border-zinc-900/60 text-xs text-zinc-500 leading-relaxed font-sans max-w-4xl">
-          <p className="mb-2">
-            <strong className="text-zinc-400">Editorial &amp; Production Integrity:</strong> All musical compositions, drum arrangements, and audio stems on DZVNbeats are original master recordings composed and engineered by Denzven Vadakkan. Each instrumental is mixed in 24-bit/44.1kHz precision to ensure competitive loudness, headroom, and dynamic impact for commercial vocal tracking.
-          </p>
-          <p>
-            Governed under the Indian Copyright Act, 1957 and the Indian Contract Act, 1872. Commercial licenses grant untagged delivery, streaming royalties retention, and synchronous distribution rights.
-          </p>
         </div>
       </div>
     </footer>

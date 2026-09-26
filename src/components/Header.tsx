@@ -123,13 +123,6 @@ export const Header: React.FC = () => {
             Licensing &amp; Legal
           </NavLink>
 
-          <a
-            href="#about"
-            className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors"
-          >
-            About
-          </a>
-
           {import.meta.env.DEV && (
             <NavLink
               to="/distribute"

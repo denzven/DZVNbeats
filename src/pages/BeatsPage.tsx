@@ -119,12 +119,25 @@ export const BeatsPage: React.FC<BeatsPageProps> = ({ beats }) => {
       }
     }
   }, [location.state, location.search, beats, playTrack, navigate]);
-  const [searchTerm, setSearchTerm] = useState("");
+
+  const [searchTerm, setSearchTerm] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("search") || params.get("q") || "";
+  });
   const [selectedTag, setSelectedTag] = useState<string>("All");
   const [sortBy, setSortBy] = useState<"default" | "bpm-asc" | "bpm-desc" | "title-asc">(
     "default",
   );
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  // Keep search in sync with URL search params
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get("search") || params.get("q");
+    if (q !== null && q !== undefined) {
+      setSearchTerm(q);
+    }
+  }, [location.search]);
 
   // Pagination State
   const [visibleCount, setVisibleCount] = useState(24);

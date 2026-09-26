@@ -169,12 +169,11 @@ export const TermsOfServicePage: React.FC = () => {
               <span>Artist Indemnification &amp; Vocal Warranties</span>
             </h2>
             <p className="text-zinc-400 mb-3">
-              Under Sections 124 &amp; 125 of the <em>Indian Contract Act, 1872</em>, the Artist warrants that any
-              lyrics, vocals, recorded audio, performance, and artwork incorporated with the beat are 100% original
-              and do not infringe upon any third party&apos;s copyright, trademark, privacy, or defamation rights.
+              The Artist warrants that any lyrics, vocals, recorded audio, performance, and artwork incorporated with the beat are 100% original
+              and do not infringe upon any third party&apos;s copyright, trademark, privacy, or intellectual property rights.
             </p>
             <p className="text-zinc-400">
-              The Artist agrees to defend, indemnify, and hold completely harmless Denzven Vadakkan and DZVNbeats
+              The Artist agrees to defend, indemnify, and hold harmless Denzven Vadakkan and DZVNbeats
               from any and all liabilities, damages, claims, or legal fees resulting from the Artist&apos;s derivative work.
             </p>
           </section>
@@ -183,7 +182,7 @@ export const TermsOfServicePage: React.FC = () => {
           <section className="bg-zinc-900/40 border border-zinc-850 rounded-2xl p-6 sm:p-8">
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
               <span className="text-amber-400 font-mono text-sm">06.</span>
-              <span>Limitation of Liability (Sections 73 &amp; 74, Contract Act 1872)</span>
+              <span>Limitation of Liability</span>
             </h2>
             <p className="text-zinc-400 mb-3">
               To the maximum extent permitted by law, the Producer provides all beats and digital services on an
@@ -192,7 +191,7 @@ export const TermsOfServicePage: React.FC = () => {
             <p className="text-zinc-400">
               The aggregate liability of Denzven Vadakkan and DZVNbeats arising out of any license or transaction shall
               in no event exceed the actual monetary amount paid by the Licensee for that specific beat license. We expressly
-              disclaim all incidental, speculative, or consequential damages (including lost streaming revenue or anticipated contracts).
+              disclaim all incidental, speculative, or consequential damages.
             </p>
           </section>
 
@@ -200,14 +199,14 @@ export const TermsOfServicePage: React.FC = () => {
           <section className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-6 sm:p-8">
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
               <Gavel className="w-5 h-5 text-amber-400" />
-              <span>Governing Law &amp; Exclusive Jurisdiction</span>
+              <span>Governing Law &amp; Jurisdiction</span>
             </h2>
             <p className="text-zinc-400 mb-4">
               These Terms and any dispute, controversy, or claim arising out of or related to your use of DZVNbeats
-              shall be governed exclusively by the laws of the Republic of India.
+              shall be governed by the laws of India.
             </p>
             <div className="p-4 rounded-xl bg-zinc-950/80 border border-zinc-800 text-xs font-mono text-zinc-300">
-              EXCLUSIVE LEGAL JURISDICTION: COMPETENT CIVIL COURTS IN MUMBAI, MAHARASHTRA, INDIA.
+              LEGAL JURISDICTION: COURTS IN MUMBAI, INDIA.
             </div>
           </section>
         </div>
