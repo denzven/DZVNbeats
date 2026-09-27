@@ -90,9 +90,15 @@ export function generateBeatPages() {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${titleFormatted}</title>
     <meta name="description" content="${descFormatted}" />
-    <meta name="robots" content="index, follow, max-image-preview:large" />
-    <link rel="icon" type="image/png" href="../../favicon.png" />
     <link rel="canonical" href="${canonicalBeatUrl}" />
+    <!-- Favicon & Brand Icons -->
+    <link rel="icon" type="image/x-icon" href="${PRODUCTION_ORIGIN}${PRODUCTION_BASE}favicon.ico" />
+    <link rel="shortcut icon" href="${PRODUCTION_ORIGIN}${PRODUCTION_BASE}favicon.ico" />
+    <link rel="icon" type="image/png" sizes="48x48" href="${PRODUCTION_ORIGIN}${PRODUCTION_BASE}favicon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="${PRODUCTION_ORIGIN}${PRODUCTION_BASE}favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="${PRODUCTION_ORIGIN}${PRODUCTION_BASE}pwa-192x192.png" />
+    <link rel="icon" type="image/png" href="${PRODUCTION_ORIGIN}${PRODUCTION_BASE}favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="${PRODUCTION_ORIGIN}${PRODUCTION_BASE}apple-touch-icon.png" />
 
     <!-- Open Graph / Facebook / Discord / WhatsApp -->
     <meta property="og:type" content="music.song" />
@@ -120,7 +126,17 @@ export function generateBeatPages() {
     <meta name="twitter:image" content="${absoluteCoverUrl}" />
     <meta name="twitter:image:alt" content="${escapeHtml(beat.title)} Cover Artwork" />
 
-    <!-- Schema.org JSON-LD Structured Data for Google Rich Snippets -->
+    <!-- Schema.org JSON-LD Structured Data for Google Rich Snippets & Site Name -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": "${PRODUCTION_ORIGIN}${PRODUCTION_BASE}#website",
+      "name": "DZVNbeats",
+      "alternateName": ["DZVN Beats", "DZVN"],
+      "url": "${PRODUCTION_ORIGIN}${PRODUCTION_BASE}"
+    }
+    </script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -515,9 +531,15 @@ export function generateStaticPolicyPages(beats = []) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${escapeHtml(page.title)}</title>
     <meta name="description" content="${escapeHtml(page.description)}" />
-    <meta name="robots" content="index, follow, max-image-preview:large" />
-    <link rel="icon" type="image/png" href="../favicon.png" />
     <link rel="canonical" href="${page.canonical}" />
+    <!-- Favicon & Brand Icons -->
+    <link rel="icon" type="image/x-icon" href="${PRODUCTION_ORIGIN}${PRODUCTION_BASE}favicon.ico" />
+    <link rel="shortcut icon" href="${PRODUCTION_ORIGIN}${PRODUCTION_BASE}favicon.ico" />
+    <link rel="icon" type="image/png" sizes="48x48" href="${PRODUCTION_ORIGIN}${PRODUCTION_BASE}favicon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="${PRODUCTION_ORIGIN}${PRODUCTION_BASE}favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="${PRODUCTION_ORIGIN}${PRODUCTION_BASE}pwa-192x192.png" />
+    <link rel="icon" type="image/png" href="${PRODUCTION_ORIGIN}${PRODUCTION_BASE}favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="${PRODUCTION_ORIGIN}${PRODUCTION_BASE}apple-touch-icon.png" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -533,7 +555,17 @@ export function generateStaticPolicyPages(beats = []) {
     <meta name="twitter:description" content="${escapeHtml(page.description)}" />
     <meta name="twitter:image" content="${PRODUCTION_ORIGIN}${PRODUCTION_BASE}banner.png" />
 
-    <!-- Structured Data -->
+    <!-- Structured Data (WebSite & WebPage for Site Name Attribution) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": "${PRODUCTION_ORIGIN}${PRODUCTION_BASE}#website",
+      "name": "DZVNbeats",
+      "alternateName": ["DZVN Beats", "DZVN"],
+      "url": "${PRODUCTION_ORIGIN}${PRODUCTION_BASE}"
+    }
+    </script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",

@@ -556,7 +556,15 @@ export default defineConfig({
     studioAdminPlugin(),
     VitePWA({
       registerType: "prompt",
-      includeAssets: ["favicon.png", "apple-touch-icon.png"],
+      includeAssets: [
+        "favicon.ico",
+        "favicon.png",
+        "favicon-48x48.png",
+        "favicon-96x96.png",
+        "apple-touch-icon.png",
+        "pwa-192x192.png",
+        "pwa-512x512.png",
+      ],
       manifest: {
         name: "DZVNbeats | Studio Beat Portfolio",
         short_name: "DZVNbeats",
