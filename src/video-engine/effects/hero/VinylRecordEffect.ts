@@ -224,14 +224,15 @@ export class VinylRecordEffect implements VideoEffect {
     const strobeCount = 72;
     const strobeR = platterR - 3.5;
     ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
+    ctx.beginPath();
     for (let i = 0; i < strobeCount; i++) {
       const angle = (i * Math.PI * 2) / strobeCount;
       const sx = cx + Math.cos(angle) * strobeR;
       const sy = cy + Math.sin(angle) * strobeR;
-      ctx.beginPath();
+      ctx.moveTo(sx + 1.2, sy);
       ctx.arc(sx, sy, 1.2, 0, Math.PI * 2);
-      ctx.fill();
     }
+    ctx.fill();
 
     // 3. Dark Matte Rubber Slipmat
     const matR = radius + 1;
@@ -267,14 +268,23 @@ export class VinylRecordEffect implements VideoEffect {
     const bassPulse = audio.subBass * 0.025 + audio.bass * 0.015;
     const r = radius * (1.0 + bassPulse);
 
-    // Deep contact shadow underneath the vinyl onto turntable bed
+    // Deep contact shadow underneath the vinyl onto turntable bed (radial gradient for instant 0ms render)
     ctx.save();
+    const shadowR = r + 24;
+    const shadowGrad = ctx.createRadialGradient(
+      cx + 8 * slideProgress,
+      cy + 12 * slideProgress,
+      r * 0.7,
+      cx + 8 * slideProgress,
+      cy + 12 * slideProgress,
+      shadowR
+    );
+    shadowGrad.addColorStop(0, `rgba(0, 0, 0, ${0.4 + 0.35 * slideProgress})`);
+    shadowGrad.addColorStop(1, "transparent");
+    ctx.fillStyle = shadowGrad;
     ctx.beginPath();
-    ctx.arc(cx + 8 * slideProgress, cy + 12 * slideProgress, r + 4, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(0, 0, 0, ${0.4 + 0.35 * slideProgress})`;
-    ctx.filter = "blur(18px)";
+    ctx.arc(cx + 8 * slideProgress, cy + 12 * slideProgress, shadowR, 0, Math.PI * 2);
     ctx.fill();
-    ctx.filter = "none";
     ctx.restore();
 
     ctx.save();
@@ -292,7 +302,7 @@ export class VinylRecordEffect implements VideoEffect {
     ctx.fillStyle = rimGrad;
     ctx.fill();
 
-    // 2. Realistic Concentric Micro-Grooves
+    // 2. Realistic Concentric Micro-Grooves (Batched path drawing)
     const grooveStart = r * 0.44;
     const grooveEnd = r * 0.96;
     const numGrooves = 22;
@@ -300,24 +310,26 @@ export class VinylRecordEffect implements VideoEffect {
 
     ctx.strokeStyle = "rgba(255, 255, 255, 0.038)";
     ctx.lineWidth = 1.2;
-
+    ctx.beginPath();
     for (let i = 0; i < numGrooves; i++) {
-      const curR = grooveStart + i * step;
-      ctx.beginPath();
-      ctx.arc(0, 0, curR, 0, Math.PI * 2);
-      ctx.stroke();
-
-      // Occasional song track gap spacing
-      if (i === 7 || i === 14) {
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
-        ctx.lineWidth = 2.4;
-        ctx.beginPath();
-        ctx.arc(0, 0, curR + step * 0.5, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.038)";
-        ctx.lineWidth = 1.2;
+      if (i !== 7 && i !== 14) {
+        const curR = grooveStart + i * step;
+        ctx.moveTo(curR, 0);
+        ctx.arc(0, 0, curR, 0, Math.PI * 2);
       }
     }
+    ctx.stroke();
+
+    // Occasional song track gap spacing
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    for (const gIdx of [7, 14]) {
+      const curR = grooveStart + gIdx * step + step * 0.5;
+      ctx.moveTo(curR, 0);
+      ctx.arc(0, 0, curR, 0, Math.PI * 2);
+    }
+    ctx.stroke();
 
     // 3. Anisotropic Specular Light Sheen (Two radial reflection cones)
     if (this.options.grooveGleam) {

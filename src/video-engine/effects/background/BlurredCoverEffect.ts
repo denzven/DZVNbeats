@@ -50,6 +50,10 @@ export class BlurredCoverEffect implements VideoEffect {
     },
   ];
 
+  private cachedBlurredCanvas: HTMLCanvasElement | null = null;
+  private cachedSourceSrc: string | null = null;
+  private cachedBlurAmount: number = -1;
+
   public render(ctx: CanvasRenderingContext2D, frameCtx: FrameContext): void {
     const { width, height, coverImage, audio } = frameCtx;
 
@@ -80,9 +84,38 @@ export class BlurredCoverEffect implements VideoEffect {
       const dx = (width - drawW) / 2;
       const dy = (height - drawH) / 2;
 
-      ctx.filter = `blur(${this.options.blurAmount}px)`;
-      ctx.drawImage(coverImage, dx, dy, drawW, drawH);
-      ctx.filter = "none";
+      // Maintain ultra-fast offscreen blurred texture cache
+      const curSrc = coverImage.src || "";
+      if (
+        !this.cachedBlurredCanvas ||
+        this.cachedSourceSrc !== curSrc ||
+        this.cachedBlurAmount !== this.options.blurAmount
+      ) {
+        const offCanvas = document.createElement("canvas");
+        const offW = 480;
+        const offH = Math.round(480 / imgAspect);
+        offCanvas.width = offW;
+        offCanvas.height = offH;
+        const offCtx = offCanvas.getContext("2d");
+        if (offCtx) {
+          // Pre-blur at 1/4 resolution (10px blur at 1/4 res equals 40px at 1080p, runs once in ~1ms)
+          const scaledBlur = Math.max(4, Math.round(this.options.blurAmount * 0.28));
+          offCtx.filter = `blur(${scaledBlur}px)`;
+          offCtx.drawImage(coverImage, 0, 0, offW, offH);
+          offCtx.filter = "none";
+          this.cachedBlurredCanvas = offCanvas;
+          this.cachedSourceSrc = curSrc;
+          this.cachedBlurAmount = this.options.blurAmount;
+        }
+      }
+
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      if (this.cachedBlurredCanvas) {
+        ctx.drawImage(this.cachedBlurredCanvas, dx, dy, drawW, drawH);
+      } else {
+        ctx.drawImage(coverImage, dx, dy, drawW, drawH);
+      }
     }
 
     // Dark overlay for contrast

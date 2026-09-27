@@ -1,5 +1,27 @@
 [
   {
+    "id": "magick",
+    "title": "Magick",
+    "filename": "DZVN_Magick_130BPM_Cmin_ava_free_Tagged.wav",
+    "url": "./beats/DZVN_Magick_130BPM_Cmin_ava_free_Tagged.wav",
+    "coverArt": "./covers/magick-cover.jpg",
+    "bpm": 130,
+    "key": "C minor",
+    "tags": [
+      "Trap, Dark, Hip-Hop, 808"
+    ],
+    "price": 0,
+    "duration": "2:37",
+    "status": "Available",
+    "beatType": "Free",
+    "isTagged": true,
+    "legacyIds": [
+      "beat-1-dzvn-magick-130bpm-cmin-ava-free-tagged",
+      "dzvn-magick"
+    ],
+    "createdAt": "2026-09-27"
+  },
+  {
     "id": "ransom",
     "title": "Ransom",
     "filename": "DZVN_Ransom_100BPM_Gmim_ava_free_Tagged.wav",
@@ -15,7 +37,7 @@
     "beatType": "Free",
     "isTagged": true,
     "legacyIds": [
-      "beat-1-dzvn-ransom-100bpm-gmim-ava-free-tagged",
+      "beat-2-dzvn-ransom-100bpm-gmim-ava-free-tagged",
       "dzvn-ransom"
     ],
     "createdAt": "2026-09-24"
@@ -37,7 +59,7 @@
     "beatType": "Free",
     "isTagged": true,
     "legacyIds": [
-      "beat-2-dzvn-champagne-132bpm-emin-ava-free-tagged",
+      "beat-3-dzvn-champagne-132bpm-emin-ava-free-tagged",
       "dzvn-champagne"
     ],
     "createdAt": "2026-09-23"
@@ -57,7 +79,7 @@
     "beatType": "Free",
     "isTagged": true,
     "legacyIds": [
-      "beat-3-dzvn-green-canopy-100bpm-gmaj-ava-free-tagged",
+      "beat-4-dzvn-green-canopy-100bpm-gmaj-ava-free-tagged",
       "dzvn-green-canopy"
     ],
     "createdAt": "2026-09-22"
@@ -79,7 +101,7 @@
     "beatType": "Free",
     "isTagged": true,
     "legacyIds": [
-      "beat-4-dzvn-akbaar-100bpm-gmjr-ava-free-tagged",
+      "beat-5-dzvn-akbaar-100bpm-gmjr-ava-free-tagged",
       "dzvn-akbaar"
     ],
     "createdAt": "2026-09-21"
@@ -99,7 +121,7 @@
     "beatType": "Free",
     "isTagged": true,
     "legacyIds": [
-      "beat-5-dzvn-flute-case-131bpm-fsharpmin-ava-free-tagged",
+      "beat-6-dzvn-flute-case-131bpm-fsharpmin-ava-free-tagged",
       "dzvn-flute-case"
     ],
     "createdAt": "2026-09-21"

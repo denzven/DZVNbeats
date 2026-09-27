@@ -3,7 +3,8 @@ import { FrameContext, VideoEffect } from "../../types";
 export class TrackInfoEffect implements VideoEffect {
   public id = "hud-track-info";
   public name = "Track Typography & HUD";
-  public description = "Modular beat info and metadata arrangement engine with multiple layout styles (Classic Vinyl, Lower-Third, Spotify Card, Cyber HUD, Billboard, Minimal Dock, Corner Stamp).";
+  public description =
+    "Modular beat info and metadata arrangement engine with multiple layout styles (Classic Vinyl, Lower-Third, Spotify Card, Cyber HUD, Billboard, Minimal Dock, Corner Stamp).";
   public category = "hud" as const;
   public enabled = true;
   public order = 70;
@@ -52,8 +53,10 @@ export class TrackInfoEffect implements VideoEffect {
       options: [
         { label: "PROD. BY DZVN", value: "PROD. BY DZVN" },
         { label: "DZVN BEATS EXCLUSIVE", value: "DZVN BEATS EXCLUSIVE" },
+        { label: "PROD. DZVN", value: "PROD. DZVN" },
         { label: "FREE FOR NON-PROFIT", value: "FREE FOR NON-PROFIT" },
         { label: "BEATS BY DZVN", value: "BEATS BY DZVN" },
+        { label: "DZVNBEATS.COM", value: "DZVNBEATS.COM" },
       ],
     },
     {
@@ -122,30 +125,202 @@ export class TrackInfoEffect implements VideoEffect {
     }
   }
 
+  /**
+   * Robust text truncation ensuring text strictly stays within maxWidth
+   */
+  private truncateToWidth(
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    maxWidth: number,
+    addEllipsis = true,
+    forceEllipsis = false
+  ): string {
+    const ellipsis = addEllipsis ? "..." : "";
+    const ellW = addEllipsis ? ctx.measureText("...").width : 0;
+    const availW = Math.max(0, maxWidth - ellW);
+
+    if (!forceEllipsis && ctx.measureText(text).width <= maxWidth) {
+      return text;
+    }
+
+    let low = 0;
+    let high = text.length;
+    let best = "";
+
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2);
+      const sub = text.slice(0, mid).trim();
+      if (ctx.measureText(sub).width <= availW) {
+        best = sub;
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+    return (best || text.slice(0, 1)) + ellipsis;
+  }
+
+  /**
+   * Robust multi-line text wrapping that guarantees bounds enforcement and ellipsis on overflow
+   */
   private wrapText(
     ctx: CanvasRenderingContext2D,
     text: string,
     maxWidth: number,
     maxLines = 2
   ): string[] {
-    const words = text.split(" ");
-    if (words.length <= 1) return [text];
+    if (!text) return [""];
+    const words = text.trim().split(/\s+/);
+    if (words.length === 0) return [""];
 
     const lines: string[] = [];
-    let currentLine = words[0];
+    let currentLine = "";
 
-    for (let i = 1; i < words.length; i++) {
-      const testLine = currentLine + " " + words[i];
-      const metrics = ctx.measureText(testLine);
-      if (metrics.width > maxWidth && lines.length < maxLines - 1) {
-        lines.push(currentLine);
-        currentLine = words[i];
-      } else {
+    for (let i = 0; i < words.length; i++) {
+      const word = words[i];
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      const testWidth = ctx.measureText(testLine).width;
+
+      if (testWidth <= maxWidth) {
         currentLine = testLine;
+      } else {
+        if (!currentLine) {
+          currentLine = this.truncateToWidth(ctx, word, maxWidth, true, false);
+          lines.push(currentLine);
+          currentLine = "";
+        } else {
+          lines.push(currentLine);
+          if (lines.length === maxLines) {
+            break;
+          }
+          currentLine = word;
+        }
       }
     }
-    lines.push(currentLine);
+
+    if (currentLine && lines.length < maxLines) {
+      lines.push(currentLine);
+    }
+
+    // Ensure last line doesn't overflow maxWidth and adds ellipsis if more words exist
+    if (lines.length > 0) {
+      const lastIdx = lines.length - 1;
+      const lastLine = lines[lastIdx];
+      const wordsRendered = lines.reduce(
+        (acc, l) => acc + l.replace(/\.\.\.$/, "").trim().split(/\s+/).filter(Boolean).length,
+        0
+      );
+      const hasMoreWords = wordsRendered < words.length;
+
+      if (ctx.measureText(lastLine).width > maxWidth) {
+        lines[lastIdx] = this.truncateToWidth(ctx, lastLine, maxWidth, true, false);
+      } else if (hasMoreWords && lines.length === maxLines) {
+        lines[lastIdx] = this.truncateToWidth(ctx, lastLine, maxWidth, true, true);
+      }
+    }
+
     return lines.slice(0, maxLines);
+  }
+
+  /**
+   * Unified tactile badge renderer supporting Glass, Solid, and Wireframe Outline styles
+   */
+  private drawBadge(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    radius: number,
+    text: string,
+    isPrimary: boolean,
+    accentColor: string
+  ): void {
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, radius);
+
+    switch (this.options.badgeStyle) {
+      case "solid":
+        ctx.fillStyle = isPrimary ? accentColor : "rgba(28, 28, 35, 0.95)";
+        ctx.strokeStyle = isPrimary ? accentColor : "rgba(255, 255, 255, 0.15)";
+        ctx.lineWidth = 1.2;
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = isPrimary ? "#09090b" : "#f4f4f5";
+        break;
+
+      case "outline":
+        ctx.fillStyle = "rgba(10, 10, 14, 0.4)";
+        ctx.strokeStyle = isPrimary ? accentColor : "rgba(255, 255, 255, 0.38)";
+        ctx.lineWidth = 1.6;
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = isPrimary ? accentColor : "#ffffff";
+        break;
+
+      case "glass":
+      default:
+        ctx.fillStyle = isPrimary ? "rgba(32, 32, 40, 0.88)" : "rgba(18, 18, 22, 0.76)";
+        ctx.strokeStyle = isPrimary ? accentColor : "rgba(255, 255, 255, 0.22)";
+        ctx.lineWidth = 1.4;
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = isPrimary ? accentColor : "#f4f4f5";
+        break;
+    }
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, x + w / 2, y + h / 2 + 1);
+    ctx.restore();
+  }
+
+  /**
+   * Fallback thumbnail generator to prevent blank black boxes when coverImage is loading
+   */
+  private drawCoverThumbnail(
+    ctx: CanvasRenderingContext2D,
+    coverImage: HTMLImageElement | null,
+    x: number,
+    y: number,
+    size: number,
+    radius: number,
+    accentColor: string
+  ): void {
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(x, y, size, size, radius);
+    ctx.clip();
+
+    if (coverImage && coverImage.complete && coverImage.naturalWidth > 0) {
+      ctx.drawImage(coverImage, x, y, size, size);
+    } else {
+      const grad = ctx.createLinearGradient(x, y, x + size, y + size);
+      grad.addColorStop(0, "#272733");
+      grad.addColorStop(1, "#111116");
+      ctx.fillStyle = grad;
+      ctx.fillRect(x, y, size, size);
+
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(x + size / 2, y + size / 2, size * 0.34, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.fillStyle = accentColor;
+      ctx.beginPath();
+      ctx.arc(x + size / 2, y + size / 2, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.roundRect(x, y, size, size, radius);
+    ctx.stroke();
   }
 
   public render(ctx: CanvasRenderingContext2D, frameCtx: FrameContext): void {
@@ -223,13 +398,13 @@ export class TrackInfoEffect implements VideoEffect {
     const { beat, time, duration, grid } = frameCtx;
     const titleFontFamily = this.getTitleFontFamily();
     const headerZone = grid.header;
-    const dockZone = grid.dock;
-    const hasVinyl = frameCtx.activeEffects?.includes("hero-vinyl-deck") ?? false;
+    const hasHero =
+      frameCtx.activeEffects?.some((id) => id.startsWith("hero-")) ?? false;
 
     // 1. Top Left Header: Producer Tag Capsule
     const pillW = 240;
     const pillH = 42;
-    ctx.fillStyle = "rgba(18, 18, 20, 0.85)";
+    ctx.fillStyle = "rgba(18, 18, 20, 0.88)";
     ctx.strokeStyle = "rgba(251, 191, 36, 0.5)";
     ctx.lineWidth = 1.4;
     ctx.beginPath();
@@ -248,7 +423,12 @@ export class TrackInfoEffect implements VideoEffect {
     ctx.fillStyle = "#ffffff";
     ctx.font = `800 15px ${titleFontFamily}`;
     ctx.textAlign = "left";
-    ctx.fillText(this.options.producerCredit, headerZone.x + 38, headerZone.y + 6 + pillH / 2 + 5);
+    ctx.textBaseline = "middle";
+    ctx.fillText(
+      this.options.producerCredit,
+      headerZone.x + 38,
+      headerZone.y + 6 + pillH / 2
+    );
 
     // Top Right: Timer & Hi-Res Specs Badge
     if (this.options.showTimer && duration > 0) {
@@ -259,47 +439,49 @@ export class TrackInfoEffect implements VideoEffect {
       const timeText = `${curM}:${curS} / ${totM}:${totS}`;
 
       ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
       ctx.font = "700 18px 'Space Mono', monospace";
-      ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-      ctx.fillText(timeText, headerZone.x + headerZone.w, headerZone.y + 32);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.88)";
+      ctx.fillText(timeText, headerZone.x + headerZone.w, headerZone.y + 27);
 
       if (this.options.showAudioSpecs) {
         const badgeW = 140;
-        const badgeH = 36;
+        const badgeH = 34;
         const timeW = ctx.measureText(timeText).width;
         const badgeX = headerZone.x + headerZone.w - timeW - badgeW - 20;
 
-        ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.roundRect(badgeX, headerZone.y + 10, badgeW, badgeH, 8);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = this.options.accentColor;
-        ctx.font = "700 13px 'Space Mono', monospace";
-        ctx.textAlign = "center";
-        ctx.fillText("320K • 24-BIT", badgeX + badgeW / 2, headerZone.y + 10 + badgeH / 2 + 5);
+        this.drawBadge(
+          ctx,
+          badgeX,
+          headerZone.y + 10,
+          badgeW,
+          badgeH,
+          8,
+          "320K • 24-BIT",
+          true,
+          this.options.accentColor
+        );
       }
     }
 
     // 2. Track Title & Badges
     const titleText = beat?.title?.toUpperCase() || "UNTITLED BEAT";
 
-    if (hasVinyl) {
+    if (hasHero) {
+      // Anchored gracefully on the right stage
       const titleX = 1080;
       const titleY = 340;
-      const maxTitleWidth = 720;
+      const maxTitleWidth = 740;
 
       ctx.font = `900 52px ${titleFontFamily}`;
       ctx.textAlign = "left";
+      ctx.textBaseline = "alphabetic";
 
       const titleLines = this.wrapText(ctx, titleText, maxTitleWidth, 2);
       const lineHeight = 64;
 
       ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
-      ctx.shadowBlur = 22;
+      ctx.shadowBlur = 24;
       ctx.shadowOffsetY = 5;
       ctx.fillStyle = "#ffffff";
 
@@ -325,46 +507,45 @@ export class TrackInfoEffect implements VideoEffect {
           const pW = txtW + 28;
           const pH = 42;
 
-          ctx.fillStyle = "rgba(24, 24, 27, 0.85)";
-          ctx.strokeStyle = i === 0 ? "rgba(251, 191, 36, 0.55)" : "rgba(255, 255, 255, 0.2)";
-          ctx.lineWidth = 1.4;
-
-          ctx.beginPath();
-          ctx.roundRect(badgeStartX, badgeY, pW, pH, 10);
-          ctx.fill();
-          ctx.stroke();
-
-          ctx.fillStyle = i === 0 ? this.options.accentColor : "#f4f4f5";
-          ctx.textAlign = "center";
-          ctx.fillText(txt, badgeStartX + pW / 2, badgeY + 26);
+          this.drawBadge(
+            ctx,
+            badgeStartX,
+            badgeY,
+            pW,
+            pH,
+            10,
+            txt,
+            i === 0,
+            this.options.accentColor
+          );
 
           badgeStartX += pW + 12;
         }
       }
     } else {
-      const titleX = dockZone.x;
-      const maxTitleWidth = dockZone.w * 0.45;
+      // Centered typography when no hero stage is active
+      const cx = grid.width / 2;
+      const titleY = 460;
+      const maxTitleWidth = 1200;
 
-      ctx.font = `900 46px ${titleFontFamily}`;
-      ctx.textAlign = "left";
+      ctx.font = `900 56px ${titleFontFamily}`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "alphabetic";
 
       const titleLines = this.wrapText(ctx, titleText, maxTitleWidth, 2);
-      const lineHeight = 54;
-      const titleY = titleLines.length > 1 ? dockZone.y + 14 : dockZone.y + 32;
+      const lineHeight = 68;
 
       ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
-      ctx.shadowBlur = 20;
-      ctx.shadowOffsetY = 4;
+      ctx.shadowBlur = 26;
+      ctx.shadowOffsetY = 6;
       ctx.fillStyle = "#ffffff";
 
       for (let i = 0; i < titleLines.length; i++) {
-        ctx.fillText(titleLines[i], titleX, titleY + i * lineHeight);
+        ctx.fillText(titleLines[i], cx, titleY + i * lineHeight);
       }
       ctx.shadowColor = "transparent";
 
       if (this.options.showBpmKey) {
-        let badgeStartX = titleX;
-        const badgeY = titleY + (titleLines.length - 1) * lineHeight + 22;
         const badges = [
           `${beat?.bpm || 120} BPM`,
           beat?.key || "C MINOR",
@@ -372,29 +553,47 @@ export class TrackInfoEffect implements VideoEffect {
         ];
 
         ctx.font = "700 16px 'Space Mono', monospace";
+        const badgeWidths = badges.map((b) => ctx.measureText(b).width + 30);
+        const gap = 12;
+        const totalRowW =
+          badgeWidths.reduce((a, b) => a + b, 0) + (badges.length - 1) * gap;
+
+        let curX = cx - totalRowW / 2;
+        const badgeY = titleY + (titleLines.length - 1) * lineHeight + 42;
+        const pH = 42;
 
         for (let i = 0; i < badges.length; i++) {
           const txt = badges[i];
-          const txtW = ctx.measureText(txt).width;
-          const pW = txtW + 28;
-          const pH = 40;
+          const pW = badgeWidths[i];
 
-          ctx.fillStyle = "rgba(24, 24, 27, 0.85)";
-          ctx.strokeStyle = i === 0 ? "rgba(251, 191, 36, 0.55)" : "rgba(255, 255, 255, 0.2)";
-          ctx.lineWidth = 1.4;
+          this.drawBadge(
+            ctx,
+            curX,
+            badgeY,
+            pW,
+            pH,
+            10,
+            txt,
+            i === 0,
+            this.options.accentColor
+          );
 
-          ctx.beginPath();
-          ctx.roundRect(badgeStartX, badgeY, pW, pH, 10);
-          ctx.fill();
-          ctx.stroke();
-
-          ctx.fillStyle = i === 0 ? this.options.accentColor : "#f4f4f5";
-          ctx.textAlign = "center";
-          ctx.fillText(txt, badgeStartX + pW / 2, badgeY + 25);
-
-          badgeStartX += pW + 12;
+          curX += pW + gap;
         }
       }
+    }
+
+    // 3. Social Watermark (docked subtly in bottom right safe area)
+    if (this.options.showSocialWatermark) {
+      ctx.font = `700 13px 'Space Mono', monospace`;
+      ctx.fillStyle = "rgba(255, 255, 255, 0.45)";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "alphabetic";
+      ctx.fillText(
+        this.options.socialWatermarkText,
+        grid.safeBounds.x + grid.safeBounds.w,
+        grid.safeBounds.y + grid.safeBounds.h
+      );
     }
   }
 
@@ -427,10 +626,11 @@ export class TrackInfoEffect implements VideoEffect {
     ctx.fillStyle = "#ffffff";
     ctx.font = `800 18px ${titleFontFamily}`;
     ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     ctx.fillText(
       `DZVN BEATS  •  ${this.options.producerCredit}`,
       cx + 10,
-      topPillY + topPillH / 2 + 6
+      topPillY + topPillH / 2 + 1
     );
 
     // 2. Tier 3 Title
@@ -439,6 +639,7 @@ export class TrackInfoEffect implements VideoEffect {
 
     ctx.font = `900 62px ${titleFontFamily}`;
     ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
 
     const titleLines = this.wrapText(ctx, titleText, 860, 2);
     const lineHeight = 74;
@@ -454,7 +655,7 @@ export class TrackInfoEffect implements VideoEffect {
     ctx.shadowColor = "transparent";
 
     // 3. Badges
-    const badgesBaseY = titleStartY + (titleLines.length - 1) * lineHeight + 70;
+    const badgesBaseY = titleStartY + (titleLines.length - 1) * lineHeight + 54;
 
     if (this.options.showBpmKey) {
       const badges = [
@@ -466,7 +667,8 @@ export class TrackInfoEffect implements VideoEffect {
       ctx.font = "700 19px 'Space Mono', monospace";
       const badgeWidths = badges.map((b) => ctx.measureText(b).width + 36);
       const gap = 14;
-      const totalRowW = badgeWidths.reduce((a, b) => a + b, 0) + (badges.length - 1) * gap;
+      const totalRowW =
+        badgeWidths.reduce((a, b) => a + b, 0) + (badges.length - 1) * gap;
 
       let curX = cx - totalRowW / 2;
       const pH = 48;
@@ -475,18 +677,17 @@ export class TrackInfoEffect implements VideoEffect {
         const txt = badges[i];
         const pW = badgeWidths[i];
 
-        ctx.fillStyle = "rgba(24, 24, 27, 0.88)";
-        ctx.strokeStyle = i === 0 ? "rgba(251, 191, 36, 0.6)" : "rgba(255, 255, 255, 0.22)";
-        ctx.lineWidth = 1.5;
-
-        ctx.beginPath();
-        ctx.roundRect(curX, badgesBaseY, pW, pH, 12);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = i === 0 ? this.options.accentColor : "#f4f4f5";
-        ctx.textAlign = "center";
-        ctx.fillText(txt, curX + pW / 2, badgesBaseY + 30);
+        this.drawBadge(
+          ctx,
+          curX,
+          badgesBaseY,
+          pW,
+          pH,
+          12,
+          txt,
+          i === 0,
+          this.options.accentColor
+        );
 
         curX += pW + gap;
       }
@@ -513,7 +714,8 @@ export class TrackInfoEffect implements VideoEffect {
       ctx.fillStyle = this.options.accentColor;
       ctx.font = `800 19px ${titleFontFamily}`;
       ctx.textAlign = "center";
-      ctx.fillText(this.options.socialWatermarkText, cx, ctaY + ctaH / 2 + 6);
+      ctx.textBaseline = "middle";
+      ctx.fillText(this.options.socialWatermarkText, cx, ctaY + ctaH / 2 + 1);
     }
   }
 
@@ -526,7 +728,7 @@ export class TrackInfoEffect implements VideoEffect {
 
     const cardX = grid.safeBounds.x + 20;
     const cardY = grid.height - 180;
-    const cardW = Math.min(grid.safeBounds.w - 40, 940);
+    const cardW = Math.min(grid.safeBounds.w - 40, 960);
     const cardH = 130;
     const thumbSize = 98;
 
@@ -558,23 +760,18 @@ export class TrackInfoEffect implements VideoEffect {
     ctx.fill();
     ctx.shadowColor = "transparent";
 
-    // 1. Cover Art Thumbnail
+    // 1. Cover Art Thumbnail (with fallback)
     const thumbX = cardX + 16;
     const thumbY = cardY + 16;
-    if (coverImage) {
-      ctx.save();
-      ctx.beginPath();
-      ctx.roundRect(thumbX, thumbY, thumbSize, thumbSize, 14);
-      ctx.clip();
-      ctx.drawImage(coverImage, thumbX, thumbY, thumbSize, thumbSize);
-      ctx.restore();
-
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.roundRect(thumbX, thumbY, thumbSize, thumbSize, 14);
-      ctx.stroke();
-    }
+    this.drawCoverThumbnail(
+      ctx,
+      coverImage,
+      thumbX,
+      thumbY,
+      thumbSize,
+      14,
+      this.options.accentColor
+    );
 
     // 2. Info Block
     const contentX = thumbX + thumbSize + 22;
@@ -583,6 +780,7 @@ export class TrackInfoEffect implements VideoEffect {
     ctx.fillStyle = this.options.accentColor;
     ctx.font = `800 13px 'Space Mono', monospace`;
     ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
     ctx.fillText(this.options.producerCredit.toUpperCase(), contentX, cardY + 36);
 
     const titleText = beat?.title?.toUpperCase() || "UNTITLED BEAT";
@@ -664,23 +862,19 @@ export class TrackInfoEffect implements VideoEffect {
 
     const thumbX = cardX + 20;
     const thumbY = cardY + 20;
-    if (coverImage) {
-      ctx.save();
-      ctx.beginPath();
-      ctx.roundRect(thumbX, thumbY, thumbSize, thumbSize, 18);
-      ctx.clip();
-      ctx.drawImage(coverImage, thumbX, thumbY, thumbSize, thumbSize);
-      ctx.restore();
-
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
-      ctx.lineWidth = 1.4;
-      ctx.beginPath();
-      ctx.roundRect(thumbX, thumbY, thumbSize, thumbSize, 18);
-      ctx.stroke();
-    }
+    this.drawCoverThumbnail(
+      ctx,
+      coverImage,
+      thumbX,
+      thumbY,
+      thumbSize,
+      18,
+      this.options.accentColor
+    );
 
     const textX = thumbX + thumbSize + 24;
     ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
 
     ctx.fillStyle = this.options.accentColor;
     ctx.font = `800 15px 'Space Mono', monospace`;
@@ -695,7 +889,11 @@ export class TrackInfoEffect implements VideoEffect {
     if (this.options.showBpmKey) {
       ctx.font = "700 16px 'Space Mono', monospace";
       ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-      ctx.fillText(`⚡ ${beat?.bpm || 120} BPM   •   ♫ ${beat?.key || "C MINOR"}`, textX, cardY + 120);
+      ctx.fillText(
+        `⚡ ${beat?.bpm || 120} BPM   •   ♫ ${beat?.key || "C MINOR"}`,
+        textX,
+        cardY + 120
+      );
     }
   }
 
@@ -728,20 +926,15 @@ export class TrackInfoEffect implements VideoEffect {
 
     const thumbX = pillX + 16;
     const thumbY = pillY + (pillH - thumbSize) / 2;
-    if (coverImage) {
-      ctx.save();
-      ctx.beginPath();
-      ctx.roundRect(thumbX, thumbY, thumbSize, thumbSize, 12);
-      ctx.clip();
-      ctx.drawImage(coverImage, thumbX, thumbY, thumbSize, thumbSize);
-      ctx.restore();
-
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.roundRect(thumbX, thumbY, thumbSize, thumbSize, 12);
-      ctx.stroke();
-    }
+    this.drawCoverThumbnail(
+      ctx,
+      coverImage,
+      thumbX,
+      thumbY,
+      thumbSize,
+      12,
+      this.options.accentColor
+    );
 
     const textX = thumbX + thumbSize + 18;
     const maxTextW = pillW - thumbSize - 60;
@@ -750,6 +943,7 @@ export class TrackInfoEffect implements VideoEffect {
     ctx.fillStyle = "#ffffff";
     ctx.font = `800 19px ${titleFontFamily}`;
     ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
     const wrapped = this.wrapText(ctx, titleText, maxTextW, 1);
     ctx.fillText(wrapped[0], textX, pillY + 34);
 
@@ -805,14 +999,15 @@ export class TrackInfoEffect implements VideoEffect {
 
     const thumbX = pillX + 22;
     const thumbY = pillY + (pillH - thumbSize) / 2;
-    if (coverImage) {
-      ctx.save();
-      ctx.beginPath();
-      ctx.roundRect(thumbX, thumbY, thumbSize, thumbSize, 16);
-      ctx.clip();
-      ctx.drawImage(coverImage, thumbX, thumbY, thumbSize, thumbSize);
-      ctx.restore();
-    }
+    this.drawCoverThumbnail(
+      ctx,
+      coverImage,
+      thumbX,
+      thumbY,
+      thumbSize,
+      16,
+      this.options.accentColor
+    );
 
     const textX = thumbX + thumbSize + 22;
     const maxTextW = pillW - thumbSize - 60;
@@ -821,6 +1016,7 @@ export class TrackInfoEffect implements VideoEffect {
     ctx.fillStyle = "#ffffff";
     ctx.font = `800 26px ${titleFontFamily}`;
     ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
     const wrapped = this.wrapText(ctx, titleText, maxTextW, 1);
     ctx.fillText(wrapped[0], textX, pillY + 46);
 
@@ -889,6 +1085,7 @@ export class TrackInfoEffect implements VideoEffect {
     ctx.font = "700 13px 'Space Mono', monospace";
     ctx.fillStyle = this.options.accentColor;
     ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
     ctx.fillText(`[ SYS // DZVN-ENGINE 2.0 ]`, safe.x + 18, safe.y + 18);
 
     ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
@@ -901,17 +1098,28 @@ export class TrackInfoEffect implements VideoEffect {
       const totS = Math.floor(duration % 60).toString().padStart(2, "0");
       ctx.textAlign = "right";
       ctx.fillStyle = "#ffffff";
-      ctx.fillText(`TIMECODE: ${curM}:${curS} / ${totM}:${totS}`, safe.x + safe.w - 18, safe.y + 18);
+      ctx.fillText(
+        `TIMECODE: ${curM}:${curS} / ${totM}:${totS}`,
+        safe.x + safe.w - 18,
+        safe.y + 18
+      );
     }
 
     const titleText = beat?.title?.toUpperCase() || "UNTITLED BEAT";
     const titleX = safe.x + 20;
-    const titleY = safe.y + safe.h - 90;
+    const maxTitleW = safe.w - 320;
 
     ctx.font = `900 42px ${titleFontFamily}`;
     ctx.fillStyle = "#ffffff";
     ctx.textAlign = "left";
-    ctx.fillText(titleText, titleX, titleY);
+
+    const titleLines = this.wrapText(ctx, titleText, maxTitleW, 2);
+    const lineHeight = 50;
+    const titleY = safe.y + safe.h - 90 - (titleLines.length - 1) * lineHeight;
+
+    for (let i = 0; i < titleLines.length; i++) {
+      ctx.fillText(titleLines[i], titleX, titleY + i * lineHeight);
+    }
 
     if (this.options.showBpmKey) {
       const bpm = beat?.bpm || 120;
@@ -919,7 +1127,7 @@ export class TrackInfoEffect implements VideoEffect {
       const tags = `// BPM: ${bpm}  // KEY: ${key.toUpperCase()}  // STATUS: ${beat?.beatType?.toUpperCase() || "EXCLUSIVE"}`;
       ctx.font = "700 14px 'Space Mono', monospace";
       ctx.fillStyle = this.options.accentColor;
-      ctx.fillText(tags, titleX, titleY + 34);
+      ctx.fillText(tags, titleX, titleY + (titleLines.length - 1) * lineHeight + 34);
     }
 
     const meterX = safe.x + safe.w - 240;
@@ -982,6 +1190,7 @@ export class TrackInfoEffect implements VideoEffect {
     ctx.font = "700 16px 'Space Mono', monospace";
     ctx.fillStyle = this.options.accentColor;
     ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
     ctx.fillText(`[ SYS // DZVN-ENGINE 2.0 ]`, grid.width / 2, safe.y + 36);
 
     if (this.options.showTimer && duration > 0) {
@@ -991,21 +1200,36 @@ export class TrackInfoEffect implements VideoEffect {
       const totS = Math.floor(duration % 60).toString().padStart(2, "0");
       ctx.font = "700 13px 'Space Mono', monospace";
       ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-      ctx.fillText(`TIMECODE: ${curM}:${curS} / ${totM}:${totS}`, grid.width / 2, safe.y + 64);
+      ctx.fillText(
+        `TIMECODE: ${curM}:${curS} / ${totM}:${totS}`,
+        grid.width / 2,
+        safe.y + 64
+      );
     }
 
     const titleText = beat?.title?.toUpperCase() || "UNTITLED BEAT";
     ctx.font = `900 52px ${titleFontFamily}`;
     ctx.fillStyle = "#ffffff";
     ctx.textAlign = "center";
-    ctx.fillText(titleText, grid.width / 2, safe.y + safe.h - 130);
+
+    const titleLines = this.wrapText(ctx, titleText, 860, 2);
+    const lineHeight = 58;
+    const titleY = safe.y + safe.h - 130 - (titleLines.length - 1) * lineHeight;
+
+    for (let i = 0; i < titleLines.length; i++) {
+      ctx.fillText(titleLines[i], grid.width / 2, titleY + i * lineHeight);
+    }
 
     if (this.options.showBpmKey) {
       const bpm = beat?.bpm || 120;
       const key = beat?.key || "C MINOR";
       ctx.font = "700 20px 'Space Mono', monospace";
       ctx.fillStyle = this.options.accentColor;
-      ctx.fillText(`// BPM: ${bpm}  // KEY: ${key.toUpperCase()}`, grid.width / 2, safe.y + safe.h - 80);
+      ctx.fillText(
+        `// BPM: ${bpm}  // KEY: ${key.toUpperCase()}`,
+        grid.width / 2,
+        titleY + (titleLines.length - 1) * lineHeight + 48
+      );
     }
   }
 
@@ -1021,6 +1245,7 @@ export class TrackInfoEffect implements VideoEffect {
     ctx.font = `800 15px 'Space Mono', monospace`;
     ctx.fillStyle = this.options.accentColor;
     ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
     ctx.fillText(`—  ${this.options.producerCredit.toUpperCase()}  —`, cx, baseY);
 
     const titleText = beat?.title?.toUpperCase() || "UNTITLED BEAT";
@@ -1029,10 +1254,16 @@ export class TrackInfoEffect implements VideoEffect {
     ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
     ctx.shadowBlur = 30;
     ctx.shadowOffsetY = 6;
-    ctx.fillText(titleText, cx, baseY + 66);
+
+    const lines = this.wrapText(ctx, titleText, 1400, 2);
+    const lineHeight = 76;
+    for (let i = 0; i < lines.length; i++) {
+      ctx.fillText(lines[i], cx, baseY + 66 + i * lineHeight);
+    }
     ctx.shadowColor = "transparent";
 
     if (this.options.showBpmKey) {
+      const badgesY = baseY + 66 + (lines.length - 1) * lineHeight + 44;
       const badges = [
         `${beat?.bpm || 120} BPM`,
         beat?.key || "C MINOR",
@@ -1040,14 +1271,15 @@ export class TrackInfoEffect implements VideoEffect {
       ];
       ctx.font = "700 15px 'Space Mono', monospace";
       const badgeStr = badges.join("   •   ");
-      ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-      ctx.fillText(badgeStr, cx, baseY + 110);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+      ctx.fillText(badgeStr, cx, badgesY);
     }
 
     if (this.options.showSocialWatermark) {
+      const ctaY = baseY + 66 + (lines.length - 1) * lineHeight + 78;
       ctx.font = "700 12px 'Space Mono', monospace";
-      ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-      ctx.fillText(this.options.socialWatermarkText, cx, baseY + 144);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.45)";
+      ctx.fillText(this.options.socialWatermarkText, cx, ctaY);
     }
   }
 
@@ -1060,6 +1292,7 @@ export class TrackInfoEffect implements VideoEffect {
     ctx.font = `800 18px 'Space Mono', monospace`;
     ctx.fillStyle = this.options.accentColor;
     ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
     ctx.fillText(`—  ${this.options.producerCredit.toUpperCase()}  —`, cx, baseY);
 
     const titleText = beat?.title?.toUpperCase() || "UNTITLED BEAT";
@@ -1117,12 +1350,15 @@ export class TrackInfoEffect implements VideoEffect {
     ctx.fill();
     ctx.shadowColor = "transparent";
 
-    // Producer Tag & Title
+    // Producer Tag & Title (Truncated so it never overlaps right-side badges)
     ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
     ctx.fillStyle = "#ffffff";
     ctx.font = `800 15px ${titleFontFamily}`;
-    const titleText = beat?.title?.toUpperCase() || "UNTITLED";
-    ctx.fillText(`${titleText}  •  ${this.options.producerCredit}`, barX + 38, barY + barH / 2 + 5);
+    const rawTitle = `${beat?.title?.toUpperCase() || "UNTITLED"}  •  ${this.options.producerCredit}`;
+    const maxTitleW = barW - 320;
+    const titleText = this.truncateToWidth(ctx, rawTitle, maxTitleW, true);
+    ctx.fillText(titleText, barX + 38, barY + barH / 2 + 1);
 
     // Badges & Time (Right side)
     const rightX = barX + barW - 20;
@@ -1139,7 +1375,7 @@ export class TrackInfoEffect implements VideoEffect {
     const rightInfo = timeText ? `${bpmText}   |   ${timeText}` : bpmText;
     ctx.font = "700 13px 'Space Mono', monospace";
     ctx.fillStyle = this.options.accentColor;
-    ctx.fillText(rightInfo, rightX, barY + barH / 2 + 5);
+    ctx.fillText(rightInfo, rightX, barY + barH / 2 + 1);
 
     ctx.restore();
   }
@@ -1171,10 +1407,13 @@ export class TrackInfoEffect implements VideoEffect {
     ctx.shadowColor = "transparent";
 
     ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
     ctx.fillStyle = "#ffffff";
     ctx.font = `800 19px ${titleFontFamily}`;
-    const titleText = beat?.title?.toUpperCase() || "UNTITLED";
-    ctx.fillText(titleText, barX + 46, barY + barH / 2 + 6);
+    const rawTitle = beat?.title?.toUpperCase() || "UNTITLED";
+    const maxTitleW = barW - 320;
+    const titleText = this.truncateToWidth(ctx, rawTitle, maxTitleW, true);
+    ctx.fillText(titleText, barX + 46, barY + barH / 2 + 1);
 
     const rightX = barX + barW - 24;
     ctx.textAlign = "right";
@@ -1188,7 +1427,7 @@ export class TrackInfoEffect implements VideoEffect {
     const rightInfo = timeText ? `${bpmText}  |  ${timeText}` : bpmText;
     ctx.font = "700 16px 'Space Mono', monospace";
     ctx.fillStyle = this.options.accentColor;
-    ctx.fillText(rightInfo, rightX, barY + barH / 2 + 6);
+    ctx.fillText(rightInfo, rightX, barY + barH / 2 + 1);
 
     ctx.restore();
   }
@@ -1224,14 +1463,15 @@ export class TrackInfoEffect implements VideoEffect {
     ctx.font = "700 11px 'Space Mono', monospace";
     ctx.fillStyle = this.options.accentColor;
     ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
     ctx.fillText(`CAT NO. DZVN-${beat?.bpm || 120}`, stampX + 14, stampY + 24);
 
-    // Track Title
-    const titleText = beat?.title?.toUpperCase() || "UNTITLED";
+    // Track Title (Truncated if necessary)
+    const rawTitle = beat?.title?.toUpperCase() || "UNTITLED";
+    const titleText = this.truncateToWidth(ctx, rawTitle, stampW - 28, true);
     ctx.fillStyle = "#ffffff";
     ctx.font = `800 16px ${titleFontFamily}`;
-    const wrapped = this.wrapText(ctx, titleText, stampW - 28, 1);
-    ctx.fillText(wrapped[0], stampX + 14, stampY + 48);
+    ctx.fillText(titleText, stampX + 14, stampY + 48);
 
     // Key & BPM
     ctx.font = "700 12px 'Space Mono', monospace";
@@ -1272,17 +1512,22 @@ export class TrackInfoEffect implements VideoEffect {
     ctx.font = "700 12px 'Space Mono', monospace";
     ctx.fillStyle = this.options.accentColor;
     ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
     ctx.fillText(`CATALOG: DZVN-RECORDS // ${beat?.bpm || 120} BPM`, stampX + 18, stampY + 30);
 
-    const titleText = beat?.title?.toUpperCase() || "UNTITLED";
+    const rawTitle = beat?.title?.toUpperCase() || "UNTITLED";
+    const titleText = this.truncateToWidth(ctx, rawTitle, stampW - 36, true);
     ctx.fillStyle = "#ffffff";
     ctx.font = `800 20px ${titleFontFamily}`;
-    const wrapped = this.wrapText(ctx, titleText, stampW - 36, 1);
-    ctx.fillText(wrapped[0], stampX + 18, stampY + 60);
+    ctx.fillText(titleText, stampX + 18, stampY + 60);
 
     ctx.font = "700 14px 'Space Mono', monospace";
     ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-    ctx.fillText(`${beat?.bpm || 120} BPM • KEY: ${beat?.key || "C MIN"}`, stampX + 18, stampY + 86);
+    ctx.fillText(
+      `${beat?.bpm || 120} BPM • KEY: ${beat?.key || "C MIN"}`,
+      stampX + 18,
+      stampY + 86
+    );
 
     ctx.font = "700 12px 'Space Mono', monospace";
     ctx.fillStyle = this.options.accentColor;

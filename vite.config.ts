@@ -171,6 +171,12 @@ const studioAdminPlugin = () => ({
               console.warn("Audio remux note:", remuxErr);
             }
 
+            try {
+              const publicVideoDir = path.resolve(__dirname, "public", "videos");
+              if (!fs.existsSync(publicVideoDir)) fs.mkdirSync(publicVideoDir, { recursive: true });
+              fs.copyFileSync(targetPath, path.resolve(publicVideoDir, filename));
+            } catch {}
+
             const stat = fs.statSync(targetPath);
             res.setHeader("Content-Type", "application/json");
             res.end(

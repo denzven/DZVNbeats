@@ -40,12 +40,57 @@ export class AudioAnalyzer {
   private offlineBuffer: AudioBuffer | null = null;
   private offlineChannelData: Float32Array | null = null;
 
+  // Fast Radix-2 Cooley-Tukey FFT Engine for Offline Video Render
+  private fftSize: number = 2048;
+  private bitRev: Uint16Array;
+  private cosTable: Float32Array;
+  private sinTable: Float32Array;
+  private windowTable: Float32Array;
+  private fftReal: Float32Array;
+  private fftImag: Float32Array;
+  private offlineFreqSmoothed: Float32Array;
+
   constructor(fftSize: number = 2048) {
     const binCount = fftSize / 2; // 1024 bins
+    this.fftSize = fftSize;
     this.freqData = new Uint8Array(binCount);
     this.timeData = new Uint8Array(fftSize);
     this.binPeaks = new Float32Array(binCount);
     this.adaptiveFftBuffer = new Float32Array(binCount);
+
+    // Initialize bit reversal table
+    const numBits = Math.round(Math.log2(fftSize));
+    this.bitRev = new Uint16Array(fftSize);
+    for (let i = 0; i < fftSize; i++) {
+      let rev = 0;
+      let temp = i;
+      for (let j = 0; j < numBits; j++) {
+        rev = (rev << 1) | (temp & 1);
+        temp >>= 1;
+      }
+      this.bitRev[i] = rev;
+    }
+
+    // Initialize twiddle factors for FFT
+    this.cosTable = new Float32Array(binCount);
+    this.sinTable = new Float32Array(binCount);
+    for (let i = 0; i < binCount; i++) {
+      this.cosTable[i] = Math.cos((-2 * Math.PI * i) / fftSize);
+      this.sinTable[i] = Math.sin((-2 * Math.PI * i) / fftSize);
+    }
+
+    // Blackman Window matching Web Audio AnalyserNode specification
+    this.windowTable = new Float32Array(fftSize);
+    for (let i = 0; i < fftSize; i++) {
+      this.windowTable[i] =
+        0.42 -
+        0.5 * Math.cos((2 * Math.PI * i) / (fftSize - 1)) +
+        0.08 * Math.cos((4 * Math.PI * i) / (fftSize - 1));
+    }
+
+    this.fftReal = new Float32Array(fftSize);
+    this.fftImag = new Float32Array(fftSize);
+    this.offlineFreqSmoothed = new Float32Array(binCount);
 
     // Initialize bin peaks with psychoacoustic slope across 20Hz - 20,000Hz
     for (let i = 0; i < binCount; i++) {
@@ -141,6 +186,17 @@ export class AudioAnalyzer {
     this.sampleRate = this.offlineBuffer.sampleRate;
     this.offlineChannelData = this.offlineBuffer.getChannelData(0);
     this.calibrateTrackProfile(this.offlineChannelData);
+    this.offlineFreqSmoothed.fill(0);
+    this.prevDrumEnergy = 0;
+    this.prevSnareEnergy = 0;
+    this.prevHihatEnergy = 0;
+    this.kickCooldown = 0;
+    this.snareCooldown = 0;
+    this.hihatCooldown = 0;
+    this.drumEnvelope = 0;
+    this.snareEnvelope = 0;
+    this.vocalEnvelope = 0;
+    this.hihatEnvelope = 0;
     ctx.close();
   }
 
@@ -380,7 +436,7 @@ export class AudioAnalyzer {
 
     const sampleRate = this.offlineBuffer.sampleRate;
     const centerIndex = Math.floor(currentTimeSec * sampleRate);
-    const windowSize = 2048;
+    const windowSize = this.fftSize;
     const halfWindow = windowSize / 2;
 
     const slice = new Float32Array(windowSize);
@@ -391,44 +447,57 @@ export class AudioAnalyzer {
       }
     }
 
-    // Fill simulated freq and time data
-    const freq = new Uint8Array(windowSize / 2);
-    const time = new Uint8Array(windowSize);
-
+    // Time domain data byte conversion (matches AnalyserNode.getByteTimeDomainData)
     for (let i = 0; i < windowSize; i++) {
-      time[i] = Math.min(255, Math.max(0, Math.floor(128 + slice[i] * 127)));
+      this.timeData[i] = Math.min(255, Math.max(0, Math.floor(128 + slice[i] * 127)));
     }
 
-    let lowEnergy = 0;
-    let midEnergy = 0;
-    let highEnergy = 0;
-
-    for (let i = 0; i < windowSize - 1; i++) {
-      const diff = Math.abs(slice[i + 1] - slice[i]);
-      const amp = Math.abs(slice[i]);
-      if (diff < 0.05) lowEnergy += amp;
-      else if (diff < 0.2) midEnergy += amp;
-      else highEnergy += amp;
+    // High performance Cooley-Tukey Radix-2 FFT
+    const N = this.fftSize;
+    for (let i = 0; i < N; i++) {
+      const targetIdx = this.bitRev[i];
+      this.fftReal[targetIdx] = slice[i] * this.windowTable[i];
+      this.fftImag[targetIdx] = 0;
     }
 
-    const rawSubBass = Math.min(1.0, (lowEnergy / windowSize) * 8.0);
-    const rawBass = Math.min(1.0, (lowEnergy / windowSize) * 6.5);
-    const rawMids = Math.min(1.0, (midEnergy / windowSize) * 5.0);
-    const rawHighs = Math.min(1.0, (highEnergy / windowSize) * 4.0);
+    for (let halfSize = 1; halfSize < N; halfSize *= 2) {
+      const step = N / (halfSize * 2);
+      for (let i = 0; i < N; i += halfSize * 2) {
+        for (let j = 0; j < halfSize; j++) {
+          const k = j * step;
+          const uReal = this.fftReal[i + j];
+          const uImag = this.fftImag[i + j];
+          const vReal = this.fftReal[i + j + halfSize];
+          const vImag = this.fftImag[i + j + halfSize];
 
-    // Populate approximate 20Hz - 20kHz frequency bins
-    for (let b = 0; b < freq.length; b++) {
-      const t = b / freq.length;
-      let val = 0;
-      if (t < 0.05) val = rawSubBass;
-      else if (t < 0.18) val = rawBass;
-      else if (t < 0.6) val = rawMids;
-      else val = rawHighs;
-      const jitter = Math.sin(b * 12.3 + currentTimeSec * 15) * 0.08 + 0.08;
-      freq[b] = Math.min(255, Math.max(0, Math.floor((val * 0.8 + jitter) * 255)));
+          const tr = vReal * this.cosTable[k] - vImag * this.sinTable[k];
+          const ti = vReal * this.sinTable[k] + vImag * this.cosTable[k];
+
+          this.fftReal[i + j + halfSize] = uReal - tr;
+          this.fftImag[i + j + halfSize] = uImag - ti;
+          this.fftReal[i + j] = uReal + tr;
+          this.fftImag[i + j] = uImag + ti;
+        }
+      }
     }
 
-    return this.computeMetricsFromData(freq, time);
+    // Decibel magnitude conversion matching W3C Web Audio AnalyserNode (-100dB to -30dB)
+    const minDecibels = -100;
+    const maxDecibels = -30;
+    const range = maxDecibels - minDecibels;
+    const binCount = N / 2;
+
+    for (let i = 0; i < binCount; i++) {
+      const mag = Math.sqrt(this.fftReal[i] * this.fftReal[i] + this.fftImag[i] * this.fftImag[i]) / N;
+      const dB = mag > 1e-6 ? 20 * Math.log10(mag) : -100;
+      const norm = Math.min(1, Math.max(0, (dB - minDecibels) / range));
+      const target = norm * 255;
+      // Smoothing time constant ~0.75 for smooth decay between video frames
+      this.offlineFreqSmoothed[i] = this.offlineFreqSmoothed[i] * 0.72 + target * 0.28;
+      this.freqData[i] = Math.round(this.offlineFreqSmoothed[i]);
+    }
+
+    return this.computeMetricsFromData(this.freqData, this.timeData);
   }
 
   private getEmptyAnalysis(): AudioAnalysis {

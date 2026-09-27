@@ -55,6 +55,17 @@
 
   <!-- Individual Beat Pages with Artwork -->
   <url>
+    <loc>https://denzven.github.io/DZVNbeats/beat/magick/</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://denzven.github.io/DZVNbeats/covers/magick-cover.jpg</image:loc>
+      <image:title>Magick - Type Beat Artwork</image:title>
+      <image:caption>Magick produced by DZVN</image:caption>
+    </image:image>
+  </url>
+  <url>
     <loc>https://denzven.github.io/DZVNbeats/beat/ransom/</loc>
     <lastmod>2026-09-24</lastmod>
     <changefreq>weekly</changefreq>

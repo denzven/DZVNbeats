@@ -36,6 +36,34 @@ export class VignetteAndGrainEffect implements VideoEffect {
     },
   ];
 
+  private noiseCanvases: HTMLCanvasElement[] = [];
+
+  private getNoiseCanvas(index: number): HTMLCanvasElement {
+    if (!this.noiseCanvases[index]) {
+      const size = 256;
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      const offCtx = canvas.getContext("2d");
+      if (offCtx) {
+        const imgData = offCtx.createImageData(size, size);
+        const data = imgData.data;
+        const total = size * size;
+        for (let i = 0; i < total; i++) {
+          const idx = i * 4;
+          const val = Math.random() > 0.5 ? 255 : 200;
+          data[idx] = val;
+          data[idx + 1] = val;
+          data[idx + 2] = val;
+          data[idx + 3] = Math.random() < 0.2 ? Math.floor(Math.random() * 26 + 8) : 0;
+        }
+        offCtx.putImageData(imgData, 0, 0);
+      }
+      this.noiseCanvases[index] = canvas;
+    }
+    return this.noiseCanvases[index];
+  }
+
   public render(ctx: CanvasRenderingContext2D, frameCtx: FrameContext): void {
     const { width, height } = frameCtx;
 
@@ -59,17 +87,19 @@ export class VignetteAndGrainEffect implements VideoEffect {
       ctx.fillRect(0, 0, width, height);
     }
 
-    // 2. Subtle living film grain
+    // 2. High-speed living 35mm film grain texture
     if (this.options.showGrain && this.options.grainIntensity > 0) {
-      // Draw sparse fast noise points without heavy pixel loops
-      const grainCount = Math.floor((width * height) / 320);
-      ctx.fillStyle = "rgba(255, 255, 255, 0.04)";
-
-      for (let i = 0; i < grainCount; i++) {
-        const x = Math.random() * width;
-        const y = Math.random() * height;
-        ctx.fillRect(x, y, 1, 1);
+      const noiseIdx = frameCtx.frame % 4;
+      const noise = this.getNoiseCanvas(noiseIdx);
+      ctx.save();
+      ctx.globalAlpha = Math.min(1.0, this.options.grainIntensity * 2.4);
+      ctx.globalCompositeOperation = "screen";
+      const pattern = ctx.createPattern(noise, "repeat");
+      if (pattern) {
+        ctx.fillStyle = pattern;
+        ctx.fillRect(0, 0, width, height);
       }
+      ctx.restore();
     }
 
     ctx.restore();

@@ -220,6 +220,7 @@ export const InteractiveVideoStudio: React.FC<InteractiveVideoStudioProps> = ({
   const [activeAccentColor, setActiveAccentColor] = useState<string>("#fbbf24");
 
   // Export State
+  const [exportFps, setExportFps] = useState<30 | 60>(30);
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState<RenderProgress | null>(null);
   const [exportError, setExportError] = useState<string | null>(null);
@@ -568,8 +569,8 @@ export const InteractiveVideoStudio: React.FC<InteractiveVideoStudioProps> = ({
         effects: engineRef.current.getEffects(),
         audioUrl,
         coverImage: img,
-        fps: 60,
-        bitrate: 14_000_000,
+        fps: exportFps,
+        bitrate: exportFps === 60 ? 14_000_000 : 9_000_000,
         onProgress: (p) => {
           setExportProgress(p);
         },
@@ -784,6 +785,32 @@ export const InteractiveVideoStudio: React.FC<InteractiveVideoStudioProps> = ({
 
         {/* Right: Studio Utility Controls & Primary Export */}
         <div className="flex items-center gap-2">
+          {/* Framerate Selector (30 FPS Fast / 60 FPS Ultra) */}
+          <div className="flex items-center bg-zinc-950 p-1 rounded-xl border border-zinc-800 text-xs shadow-inner">
+            <button
+              onClick={() => setExportFps(30)}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                exportFps === 30
+                  ? "bg-amber-400 text-zinc-950 font-extrabold shadow-sm"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+              title="30 FPS (Fast & High Quality, recommended for social media)"
+            >
+              30 FPS (Fast)
+            </button>
+            <button
+              onClick={() => setExportFps(60)}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                exportFps === 60
+                  ? "bg-amber-400 text-zinc-950 font-extrabold shadow-sm"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+              title="60 FPS (Ultra Smooth)"
+            >
+              60 FPS
+            </button>
+          </div>
+
           {/* Safe-Zones Overlay Guide Toggle */}
           <button
             onClick={handleToggleGrid}
@@ -805,7 +832,7 @@ export const InteractiveVideoStudio: React.FC<InteractiveVideoStudioProps> = ({
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-zinc-950 font-extrabold text-xs shadow-lg shadow-amber-400/25 transition-all cursor-pointer"
           >
             <Download className="w-4 h-4 stroke-[2.5]" />
-            <span>{isExporting ? "Rendering..." : "Export 1080p MP4"}</span>
+            <span>{isExporting ? "Rendering..." : `Export ${exportFps}FPS MP4`}</span>
           </button>
         </div>
       </div>
@@ -1716,7 +1743,7 @@ export const InteractiveVideoStudio: React.FC<InteractiveVideoStudioProps> = ({
           </div>
 
           <h3 className="text-lg font-extrabold text-white tracking-tight mb-1">
-            Rendering 1080p 60FPS Video
+            Rendering 1080p {exportFps}FPS Video
           </h3>
           <p className="text-xs text-zinc-400 max-w-sm mb-6">
             GPU-accelerated WebCodecs rendering in progress. Frames are encoded

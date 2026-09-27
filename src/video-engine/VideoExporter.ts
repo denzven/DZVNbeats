@@ -57,7 +57,19 @@ export class VideoExporter {
 
     // 3. Setup Offscreen Canvas & Fonts
     if (typeof document !== "undefined" && document.fonts) {
-      await document.fonts.ready;
+      try {
+        await Promise.all([
+          document.fonts.load("900 52px Outfit"),
+          document.fonts.load("800 24px Outfit"),
+          document.fonts.load("700 18px 'Space Mono'"),
+          document.fonts.load("700 14px 'Space Mono'"),
+          document.fonts.load("700 18px 'Plus Jakarta Sans'"),
+          document.fonts.load("600 16px Outfit"),
+          document.fonts.ready,
+        ]);
+      } catch (fontErr) {
+        console.warn("Fonts preload notice:", fontErr);
+      }
     }
     const canvas = document.createElement("canvas");
     canvas.width = width;
@@ -65,16 +77,18 @@ export class VideoExporter {
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) throw new Error("Could not create canvas 2D context for export");
 
-    // 4. Setup mp4-muxer
+    // 4. Setup mp4-muxer with matched audio sample rate & channels
     const muxerTarget = new ArrayBufferTarget();
+    const audioSampleRate = audioBuffer.sampleRate || 44100;
+    const audioChannels = Math.min(2, Math.max(1, audioBuffer.numberOfChannels || 2));
 
-    // Check if AudioEncoder is available and supports AAC
+    // Check if AudioEncoder is available and supports AAC with this sample rate
     let hasAudioEncoder = typeof window.AudioEncoder !== "undefined";
     if (hasAudioEncoder) {
       try {
         const support = await window.AudioEncoder.isConfigSupported({
-          numberOfChannels: 2,
-          sampleRate: 48000,
+          numberOfChannels: audioChannels,
+          sampleRate: audioSampleRate,
           codec: "mp4a.40.2",
           bitrate: 320000,
         });
@@ -95,8 +109,8 @@ export class VideoExporter {
       audio: hasAudioEncoder
         ? {
             codec: "aac",
-            numberOfChannels: 2,
-            sampleRate: 48000,
+            numberOfChannels: audioChannels,
+            sampleRate: audioSampleRate,
           }
         : undefined,
       fastStart: "in-memory",
@@ -127,21 +141,25 @@ export class VideoExporter {
     // 6. Optional AudioEncoder if supported
     let audioEncoder: AudioEncoder | null = null;
     if (hasAudioEncoder) {
-      audioEncoder = new AudioEncoder({
-        output: (chunk, meta) => muxer.addAudioChunk(chunk, meta),
-        error: (e) => console.error("AudioEncoder error:", e),
-      });
+      try {
+        audioEncoder = new AudioEncoder({
+          output: (chunk, meta) => muxer.addAudioChunk(chunk, meta),
+          error: (e) => console.error("AudioEncoder error:", e),
+        });
 
-      audioEncoder.configure({
-        codec: "mp4a.40.2",
-        numberOfChannels: 2,
-        sampleRate: 48000,
-        bitrate: 320000,
-      });
+        audioEncoder.configure({
+          codec: "mp4a.40.2",
+          numberOfChannels: audioChannels,
+          sampleRate: audioSampleRate,
+          bitrate: 320000,
+        });
 
-      // Encode audio chunks
-      await this.encodeAudio(audioBuffer, audioEncoder, totalDuration);
-      await audioEncoder.flush();
+        // Encode audio chunks
+        await this.encodeAudio(audioBuffer, audioEncoder, totalDuration);
+        await audioEncoder.flush();
+      } catch (audioErr) {
+        console.warn("Browser AudioEncoder note, server will remux pristine audio:", audioErr);
+      }
     }
 
     // 7. Render Video Frame by Frame
